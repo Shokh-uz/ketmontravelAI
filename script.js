@@ -25,13 +25,13 @@
 // Custom smooth scroll function for sections - responsive and smooth
 function smoothScrollTo(element, offset = 0, duration = 600) {
     if (!element) return;
-    
+
     // Stop any ongoing wheel scrolling animation
     if (window.smoothScrollAnimation) {
         cancelAnimationFrame(window.smoothScrollAnimation);
         window.smoothScrollAnimation = null;
     }
-    
+
     // Stop wheel scrolling if active
     if (window.wheelScrollingActive) {
         window.wheelScrollingActive = false;
@@ -40,40 +40,40 @@ function smoothScrollTo(element, offset = 0, duration = 600) {
             window.wheelScrollAnimation = null;
         }
     }
-    
+
     const startPosition = window.pageYOffset || document.documentElement.scrollTop;
     const elementPosition = element.getBoundingClientRect().top + startPosition;
     const targetPosition = elementPosition - offset;
     const distance = targetPosition - startPosition;
-    
+
     // If distance is very small, just scroll immediately
     if (Math.abs(distance) < 10) {
         window.scrollTo({ top: targetPosition, behavior: 'auto' });
         return;
     }
-    
+
     let startTime = null;
     let animationFrameId = null;
-    
+
     function easeInOutCubic(t) {
-        return t < 0.5 
-            ? 4 * t * t * t 
+        return t < 0.5
+            ? 4 * t * t * t
             : 1 - Math.pow(-2 * t + 2, 3) / 2;
     }
-    
+
     function animation(currentTime) {
         if (startTime === null) startTime = currentTime;
         const timeElapsed = currentTime - startTime;
         const progress = Math.min(timeElapsed / duration, 1);
-        
+
         const ease = easeInOutCubic(progress);
         const currentPosition = startPosition + (distance * ease);
-        
+
         window.scrollTo({
             top: Math.round(currentPosition),
             behavior: 'auto'
         });
-        
+
         if (progress < 1) {
             animationFrameId = requestAnimationFrame(animation);
             window.smoothScrollAnimation = animationFrameId;
@@ -83,7 +83,7 @@ function smoothScrollTo(element, offset = 0, duration = 600) {
             window.smoothScrollAnimation = null;
         }
     }
-    
+
     animationFrameId = requestAnimationFrame(animation);
     window.smoothScrollAnimation = animationFrameId;
 }
@@ -97,23 +97,23 @@ document.addEventListener('click', function (e) {
     if (!target) return;
     const hash = target.getAttribute('href');
     if (!hash || hash === '#') return;
-    
+
     const el = document.querySelector(hash);
     if (el) {
         e.preventDefault();
         e.stopPropagation();
-        
+
         // Get header height for offset (if header is fixed)
         const header = document.querySelector('.main-header');
         const headerHeight = header ? header.offsetHeight : 80;
-        
+
         // Smooth scroll to section with header offset (faster, more responsive)
         smoothScrollTo(el, headerHeight, 600);
     }
 });
 
 // Smooth scrolling for the entire page
-(function() {
+(function () {
     // Check if element is in a scrollable container
     function isInScrollableContainer(element) {
         if (!element) return false;
@@ -128,16 +128,16 @@ document.addEventListener('click', function (e) {
         }
         return false;
     }
-    
+
     let isScrolling = false;
     let scrollTarget = 0;
     let currentScroll = 0;
     let animationFrame = null;
-    
+
     // Expose wheel scrolling state for section scrolling to stop it
     window.wheelScrollingActive = false;
     window.wheelScrollAnimation = null;
-    
+
     function animateScroll() {
         if (!isScrolling) {
             window.wheelScrollingActive = false;
@@ -148,11 +148,11 @@ document.addEventListener('click', function (e) {
             }
             return;
         }
-        
+
         window.wheelScrollingActive = true;
-        
+
         const diff = scrollTarget - currentScroll;
-        
+
         if (Math.abs(diff) < 0.5) {
             window.scrollTo({ top: scrollTarget, behavior: 'auto' });
             currentScroll = scrollTarget;
@@ -165,93 +165,93 @@ document.addEventListener('click', function (e) {
             }
             return;
         }
-        
+
         // Smooth interpolation - using exponential easing for natural feel
         const speed = 0.12; // Lower = slower, smoother (0.08-0.15 range works well)
         const step = diff * speed;
         currentScroll += step;
-        
+
         // Use scrollTo with smooth behavior for better browser optimization
-        window.scrollTo({ 
-            top: Math.round(currentScroll), 
-            behavior: 'auto' 
+        window.scrollTo({
+            top: Math.round(currentScroll),
+            behavior: 'auto'
         });
-        
+
         animationFrame = requestAnimationFrame(animateScroll);
         window.wheelScrollAnimation = animationFrame;
     }
-    
+
     // Handle mouse wheel scrolling
     let wheelTimeout = null;
     let accumulatedDelta = 0;
-    
-    document.addEventListener('wheel', function(e) {
+
+    document.addEventListener('wheel', function (e) {
         // Skip if in scrollable container
         if (isInScrollableContainer(e.target)) {
             return;
         }
-        
+
         // Skip horizontal scrolling
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
             return;
         }
-        
+
         // Skip if scrolling inside input/textarea
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) {
             return;
         }
-        
+
         e.preventDefault();
         e.stopPropagation();
-        
+
         const now = Date.now();
         const delta = e.deltaY;
-        
+
         // Accumulate small scrolls for smoother experience
         accumulatedDelta += delta;
-        
+
         // Update scroll target
         scrollTarget += delta * 0.6; // Reduce scroll distance
-        scrollTarget = Math.max(0, Math.min(scrollTarget, 
+        scrollTarget = Math.max(0, Math.min(scrollTarget,
             document.documentElement.scrollHeight - window.innerHeight));
-        
+
         // Start animation if not already running
         if (!isScrolling) {
             currentScroll = window.pageYOffset || document.documentElement.scrollTop;
             isScrolling = true;
             animateScroll();
         }
-        
+
         // Reset accumulated delta after a pause
         clearTimeout(wheelTimeout);
-        wheelTimeout = setTimeout(function() {
+        wheelTimeout = setTimeout(function () {
             accumulatedDelta = 0;
             // Keep scrolling for a bit after wheel stops for smooth deceleration
-            setTimeout(function() {
+            setTimeout(function () {
                 if (isScrolling) {
                     isScrolling = false;
                 }
             }, 100);
         }, 150);
-        
+
     }, { passive: false, capture: true });
-    
+
     // Sync with manual scrolling (scrollbar, keyboard)
     let syncTimeout = null;
     let lastScrollPos = window.pageYOffset || document.documentElement.scrollTop;
-    
-    window.addEventListener('scroll', function() {
+
+    window.addEventListener('scroll', function () {
         const currentPos = window.pageYOffset || document.documentElement.scrollTop;
-        
+
         // If scroll happened without our animation, sync
         if (!isScrolling && Math.abs(currentPos - lastScrollPos) > 1) {
             clearTimeout(syncTimeout);
-            syncTimeout = setTimeout(function() {
+            syncTimeout = setTimeout(function () {
                 currentScroll = currentPos;
                 scrollTarget = currentPos;
             }, 50);
         }
-        
+
         lastScrollPos = currentPos;
     }, { passive: true });
 })();
@@ -424,6 +424,7 @@ document.addEventListener('click', function (e) {
             hero_subtitle: "Hayotingizning eng yaxshi tajribasini biz bilan kashf eting",
             hero_btn1: "Yo'nalishlarni Ko'rish",
             hero_btn2: "Maslahat Olish",
+            tour_consult_btn: "Maslahat olish",
             search_destination: "Yo'nalish",
             search_destination_placeholder: "Qayerga bormoqchisiz?",
             search_date: "Sana",
@@ -500,33 +501,10 @@ document.addEventListener('click', function (e) {
             contact_status_placeholder: "Yuborilgan xabarlarimizga odatda 30 daqiqada javob beramiz.",
             contact_success_message: "Xabaringiz qabul qilindi! Tez orada siz bilan bog'lanamiz.",
             contact_error_message: "Iltimos, barcha maydonlarni to'liq kiriting.",
-            ai_assistant_title: "Smart AI yordamchi",
-            ai_assistant_subtitle: "Budjetingiz, yo'nalishingiz va sanalarga qarab mos tur paketlarni tavsiya qiladi.",
-            ai_budget_label: "Budjet (USD)",
-            ai_budget_placeholder: "1500",
-            ai_destination_label: "Qiziqqan yo'nalish",
-            ai_destination_placeholder: "Osiyo, Yevropa...",
-            ai_season_label: "Qaysi fasllar",
-            ai_season_summer: "Yoz",
-            ai_season_autumn: "Kuz",
-            ai_season_winter: "Qish",
-            ai_season_spring: "Bahor",
-            ai_month_label: "Oy",
-            ai_month_select: "Tanlang",
-            ai_month_january: "Yanvar",
-            ai_month_february: "Fevral",
-            ai_month_march: "Mart",
-            ai_month_april: "Aprel",
-            ai_month_may: "May",
-            ai_month_june: "Iyun",
-            ai_month_july: "Iyul",
-            ai_month_august: "Avgust",
-            ai_month_september: "Sentabr",
-            ai_month_october: "Oktabr",
-            ai_month_november: "Noyabr",
-            ai_month_december: "Dekabr",
-            ai_generate_btn: "Tavsiyalarni ko'rish",
-            ai_response_placeholder: "Savolingizni kiriting va AI yordamchidan tavsiyalar oling.",
+            calc_title: "Narx, baho, so'm",
+            calc_clear: "Tozalash",
+            calc_from: "dan",
+            calc_before: "oldin",
             search_guests: "Odamlar soni",
             search_btn: "Qidirish",
             late_escape_title: "Yaxshi vaqt o'tkazish, uzoq emas",
@@ -620,7 +598,62 @@ document.addEventListener('click', function (e) {
             service1_advantage_text: "Real vaqtda narxlar, 500+ aviakompaniya, tezkor bron qilish",
             service2_advantage_text: "50,000+ mehmonxona, eng yaxshi narxlar, bepul bekor qilish",
             service3_advantage_text: "Mahalliy gidlar, shaxsiylashtirilgan marshrutlar, 24/7 qo'llab-quvvatlash",
-            service4_advantage_text: "Tezkor viza olish, professional yordam, yuqori muvaffaqiyat darajasi"
+            service4_advantage_text: "Tezkor viza olish, professional yordam, yuqori muvaffaqiyat darajasi",
+
+            // Smart Calculator & Tours
+            calc_title_main: "Smart Kalkulyator",
+            calc_city_default: "Shahar tanlang",
+            calc_group_popular: "Mashhur",
+            calc_group_all: "Barchasi (A-Z)",
+            calc_recommend_btn: "Tavsiyalarni ko'rsatish",
+            calc_no_results: "Ushbu narxda ({budget} so'm) turlar topilmadi. Iltimos, byudjetni oshiring.",
+            calc_days: "Kun",
+            calc_book_btn: "Bron qilish",
+
+            // Titles
+            tour_istanbul_classic_title: "Istanbul Klassik",
+            tour_istanbul_premium_title: "Istanbul Premium",
+            tour_dubai_trip_title: "Dubay Sayyohati",
+            tour_dubai_luxe_title: "Dubay Luks",
+            tour_sharm_relax_title: "Sharm Relax",
+            tour_paris_romantic_title: "Parij Romantikasi",
+            tour_london_tour_title: "London Ekskursiyasi",
+            tour_tashkent_city_title: "Toshkent Bo'ylab",
+            tour_baku_wind_title: "Boku Shamoli",
+            tour_antalya_beach_title: "Antalya Plyajlari",
+            tour_tokyo_future_title: "Tokio Kelajagi",
+            tour_seoul_culture_title: "Seul Madaniyati",
+            tour_kl_tropics_title: "Malayziya Tropiklari",
+
+            // Notes
+            tour_note_cheapest: "Eng arzon variant",
+            tour_note_comfort: "Qulaylikni sevuvchilar uchun",
+            tour_note_fast: "Tezkor sayohat",
+            tour_note_unforgettable: "Unutilmas taassurotlar",
+            tour_note_ideal: "Dam olish uchun ideal",
+            tour_note_couples: "Juftliklar uchun",
+            tour_note_history: "Tarix ixlosmandlari uchun",
+            tour_note_guests: "Poytaxt mehmonlari uchun",
+            tour_note_budget: "Hamyonbop sayohat",
+            tour_note_summer: "Yozgi ta'til uchun",
+            tour_note_tech: "Texnologiya va madaniyat",
+            tour_note_kpop: "K-Pop va tarix",
+            tour_note_nature: "Tabiat va shahar",
+
+            // Includes
+            inc_hotel_bf_trans: "Mehmonxona, Nonushta, Transfer",
+            inc_5star_all_guide: "5* Mehmonxona, Barcha ovqatlar, Gid",
+            inc_hotel_visa_trans: "Mehmonxona, Viza, Transfer",
+            inc_burj_safari_5star: "Burj Khalifa, Safari, 5* Hotel",
+            inc_all_sea: "All Inclusive, Dengiz bo'yi",
+            inc_hotel_trans_eiffel: "Mehmonxona, Transfer, Eiffel",
+            inc_hotel_guide_museum: "Mehmonxona, Gid, Muzeylar",
+            inc_hotel_guide_meal: "Mehmonxona, Gid, Ovqatlanish",
+            inc_hotel_trans_oldcity: "Mehmonxona, Transfer, Eski shahar",
+            inc_all_avia: "All Inclusive, Avia",
+            inc_hotel_metro_guide: "Mehmonxona, Metro kartasi, Gid",
+            inc_hotel_palace_trans: "Mehmonxona, Saroylar, Transfer",
+            inc_hotel_trans_excur: "Mehmonxona, Transfer, Ekskursiya"
         },
         ru: {
             phone: "+998 93 301 52 18",
@@ -662,6 +695,7 @@ document.addEventListener('click', function (e) {
             hero_subtitle: "Откройте лучшие впечатления вместе с нами",
             hero_btn1: "Смотреть направления",
             hero_btn2: "Получить консультацию",
+            tour_consult_btn: "Получить консультацию",
             search_destination: "Направление",
             search_destination_placeholder: "Куда хотите поехать?",
             search_date: "Дата",
@@ -738,33 +772,553 @@ document.addEventListener('click', function (e) {
             contact_status_placeholder: "Обычно отвечаем в течение 30 минут.",
             contact_success_message: "Ваше сообщение принято! Мы свяжемся с вами в ближайшее время.",
             contact_error_message: "Заполните, пожалуйста, все поля формы.",
-            ai_assistant_title: "Умный AI помощник",
-            ai_assistant_subtitle: "Подбирает турпакеты по вашему бюджету, направлениям и датам.",
-            ai_budget_label: "Бюджет (USD)",
-            ai_budget_placeholder: "1500",
-            ai_destination_label: "Интересующие направления",
-            ai_destination_placeholder: "Азия, Европа...",
-            ai_season_label: "Желаемый сезон",
-            ai_season_summer: "Лето",
-            ai_season_autumn: "Осень",
-            ai_season_winter: "Зима",
-            ai_season_spring: "Весна",
-            ai_month_label: "Месяц",
-            ai_month_select: "Выберите",
-            ai_month_january: "Январь",
-            ai_month_february: "Февраль",
-            ai_month_march: "Март",
-            ai_month_april: "Апрель",
-            ai_month_may: "Май",
-            ai_month_june: "Июнь",
-            ai_month_july: "Июль",
-            ai_month_august: "Август",
-            ai_month_september: "Сентябрь",
-            ai_month_october: "Октябрь",
-            ai_month_november: "Ноябрь",
-            ai_month_december: "Декабрь",
-            ai_generate_btn: "Получить рекомендации",
-            ai_response_placeholder: "Введите запрос и получите рекомендации от AI помощника.",
+            calc_title: "Цена, оценка, сум",
+            calc_clear: "Очистить",
+            calc_from: "от",
+            calc_before: "до",
+            search_guests: "Количество людей",
+            search_btn: "Искать",
+            late_escape_title: "Хорошее время, а не долгое",
+            late_escape_subtitle: "Выжмите последнее из лета со скидкой не менее 15%",
+            late_escape_btn: "Найти",
+            trending_title: "Популярные направления",
+            trending_subtitle: "Самые популярные выборы для путешественников из Узбекистана",
+            explore_uz_title: "Исследуйте Узбекистан",
+            explore_uz_subtitle: "Эти популярные направления предлагают многое",
+            explore_properties: "объектов",
+            property_type_title: "Поиск по типу недвижимости",
+            property_hotels: "Отели",
+            property_apartments: "Апартаменты",
+            property_resorts: "Курорты",
+            property_villas: "Виллы",
+            trip_planner_title: "Быстрый и простой планировщик поездок",
+            trip_planner_subtitle: "Выберите настроение и исследуйте лучшие направления в Узбекистане",
+            trip_festivals: "Фестивали",
+            trip_shopping: "Шопинг и ремесла",
+            trip_gastronomic: "Гастрономические путешествия",
+            trip_cultural: "Культурное исследование",
+            trip_architecture: "Архитектурные туры",
+            trip_historical: "Исторические места",
+            weekend_deals_title: "Предложения на выходные",
+            weekend_deals_subtitle: "Экономьте на проживании с 14 по 16 ноября",
+            dest_tashkent: "Ташкент",
+            dest_samarkand: "Самарканд",
+            dest_istanbul: "Стамбул",
+            dest_bukhara: "Бухара",
+            dest_dubai: "Дубай",
+            dest_khiva: "Хива",
+            dest_chimgan: "Чимган",
+            dest_fergana: "Фергана",
+            dest_kokand: "Коканд",
+            explore_tashkent_props: "1,409 объектов",
+            explore_samarkand_props: "914 объектов",
+            explore_bukhara_props: "587 объектов",
+            explore_khiva_props: "163 объекта",
+            explore_chimgan_props: "20 объектов",
+            explore_fergana_props: "46 объектов",
+            trip_tashkent_distance: "7 км",
+            trip_kokand_distance: "165 км",
+            trip_fergana_distance: "237 км",
+            trip_samarkand_distance: "262 км",
+            trip_bukhara_distance: "438 км",
+            trip_khiva_distance: "739 км",
+            deal_premium_hotel: "Премиум отель",
+            deal_luxury_apartment: "Роскошная квартира",
+            deal_resort_stay: "Курортный отель",
+            deal_villa_retreat: "Вилла для отдыха",
+            deal_price_89: "$89/ночь",
+            deal_price_75: "$75/ночь",
+            deal_price_120: "$120/ночь",
+            deal_price_150: "$150/ночь",
+            destinations_title: "Популярные направления",
+            destinations_subtitle: "Наши лучшие предложения",
+            badge_popular: "Популярно",
+            badge_sale: "Скидка",
+            badge_new: "Новинка",
+            btn_details: "Подробнее",
+            price_per_person: "за человека",
+            dest1_name: "Дубай, ОАЭ",
+            dest1_desc: "Современная архитектура и древние традиции",
+            dest2_name: "Париж, Франция",
+            dest2_desc: "Столица любви и романтики, прекрасная архитектура",
+            dest3_name: "Стамбул, Турция",
+            dest3_desc: "Удивительное сочетание Востока и Запада",
+            dest4_name: "Швейцария",
+            dest4_desc: "Альпы и кристально чистые озера",
+            dest5_name: "Токио, Япония",
+            dest5_desc: "Уникальное сочетание технологий и традиций",
+            dest6_name: "Рим, Италия",
+            dest6_desc: "Древняя история и потрясающая архитектура",
+            dest7_name: "Bangkok Gourmet, Таиланд",
+            dest7_desc: "Гастротуры, рестораны Michelin и персональные гиды.",
+            dest8_name: "London Summit, Великобритания",
+            dest8_desc: "Пакет для бизнес-конференции, премиум-отель и трансферы.",
+            dest9_name: "Baku Weekend, Азербайджан",
+            dest9_desc: "Прямой рейс из Ташкента, 4* отель и обзорная экскурсия по городу.",
+            services_title: "Наши услуги",
+            services_subtitle: "Почему выбирают нас? Мы предлагаем лучшие цены, профессиональный сервис и поддержку 24/7",
+            service1_title: "Авиабилеты",
+            service1_desc: "Бронирование авиабилетов по выгодным ценам",
+            service2_title: "Отели",
+            service2_desc: "Удобные отели по всему миру",
+            service3_title: "Экскурсии",
+            service3_desc: "Интересные туры с профессиональными гидами",
+            service4_title: "Визовая поддержка",
+            service4_desc: "Оформление виз",
+            service_why: "Почему мы?",
+            service1_advantage_text: "Цены в реальном времени, 500+ авиакомпаний, быстрое бронирование",
+            service2_advantage_text: "50,000+ отелей, лучшие цены, бесплатная отмена",
+            service3_advantage_text: "Местные гиды, персонализированные маршруты, поддержка 24/7",
+            service4_advantage_text: "Быстрое оформление виз, профессиональная помощь, высокий процент успеха",
+
+            // Smart Calculator & Tours
+            calc_title_main: "Smart Калькулятор",
+            calc_city_default: "Выберите город",
+            calc_group_popular: "Популярные",
+            calc_group_all: "Все (А-Я)",
+            calc_recommend_btn: "Показать рекомендации",
+            calc_no_results: "Туры по цене ({budget} сум) не найдены. Пожалуйста, увеличьте бюджет.",
+            calc_days: "Дней",
+            calc_book_btn: "Забронировать",
+
+            // Titles
+            tour_istanbul_classic_title: "Стамбул Классик",
+            tour_istanbul_premium_title: "Стамбул Премиум",
+            tour_dubai_trip_title: "Путешествие в Дубай",
+            tour_dubai_luxe_title: "Дубай Люкс",
+            tour_sharm_relax_title: "Шарм Релакс",
+            tour_paris_romantic_title: "Романтический Париж",
+            tour_london_tour_title: "Экскурсия по Лондону",
+            tour_tashkent_city_title: "По Ташкенту",
+            tour_baku_wind_title: "Ветры Баку",
+            tour_antalya_beach_title: "Пляжи Анталии",
+            tour_tokyo_future_title: "Будущее Токио",
+            tour_seoul_culture_title: "Культура Сеула",
+            tour_kl_tropics_title: "Тропики Малайзии",
+
+            // Notes
+            tour_note_cheapest: "Самый дешевый вариант",
+            tour_note_comfort: "Для ценителей комфорта",
+            tour_note_fast: "Быстрое путешествие",
+            tour_note_unforgettable: "Незабываемые впечатления",
+            tour_note_ideal: "Идеально для отдыха",
+            tour_note_couples: "Для пар",
+            tour_note_history: "Для любителей истории",
+            tour_note_guests: "Для гостей столицы",
+            tour_note_budget: "Бюджетное путешествие",
+            tour_note_summer: "Для летнего отдыха",
+            tour_note_tech: "Технологии и культура",
+            tour_note_kpop: "K-Pop и история",
+            tour_note_nature: "Природа и город",
+
+            // Includes
+            inc_hotel_bf_trans: "Отель, Завтрак, Трансфер",
+            inc_5star_all_guide: "5* Отель, Все включено, Гид",
+            inc_hotel_visa_trans: "Отель, Виза, Трансфер",
+            inc_burj_safari_5star: "Бурдж-Халифа, Сафари, 5* Отель",
+            inc_all_sea: "Все включено, У моря",
+            inc_hotel_trans_eiffel: "Отель, Трансфер, Эйфель",
+            inc_hotel_guide_museum: "Отель, Гид, Музеи",
+            inc_hotel_guide_meal: "Отель, Гид, Питание",
+            inc_hotel_trans_oldcity: "Отель, Трансфер, Старый город",
+            inc_all_avia: "Все включено, Авиа",
+            inc_hotel_metro_guide: "Отель, Карта метро, Гид",
+            inc_hotel_palace_trans: "Отель, Дворцы, Трансфер",
+            inc_hotel_trans_excur: "Отель, Трансфер, Экскурсии"
+        },
+        en: {
+            phone: "+998 93 301 52 18",
+            email: "info@ketmon.uz",
+            nav_home: "Home",
+            nav_destinations: "Destinations",
+            nav_services: "Services",
+            nav_about: "About",
+            nav_contact: "Contact",
+            nav_book: "Book Now",
+            nav_login: "Login",
+            nav_register: "Register",
+            login_email_label: "Email",
+            login_email_placeholder: "you@example.com",
+            login_password_label: "Password",
+            login_password_placeholder: "••••••••",
+            register_switch: "Register",
+            register_role_label: "Select role",
+            register_customer_tab: "Customer",
+            register_agency_tab: "Agency",
+            register_name_label: "Full name",
+            register_name_placeholder: "Your name",
+            register_email_label: "Email",
+            register_email_placeholder: "you@example.com",
+            register_password_label: "Password",
+            register_password_placeholder: "••••••••",
+            register_agency_name_label: "Agency name",
+            register_agency_name_placeholder: "Agency name",
+            register_license_label: "License number",
+            register_license_placeholder: "ABC-123456",
+            register_agency_email_label: "Agency email",
+            register_agency_email_placeholder: "agency@example.com",
+            register_agency_phone_label: "Phone",
+            register_agency_phone_placeholder: "+998 xx xxx xx xx",
+            register_agency_password_label: "Password",
+            register_agency_password_placeholder: "••••••••",
+            register_submit: "Create",
+            hero_title: "Unforgettable Journeys Around the World",
+            hero_subtitle: "Discover the best experiences with us",
+            hero_btn1: "View Destinations",
+            hero_btn2: "Get Consultation",
+            tour_consult_btn: "Get consultation",
+            search_destination: "Destination",
+            search_destination_placeholder: "Where do you want to go?",
+            search_date: "Date",
+            search_duration: "Duration",
+            duration_3: "3 days",
+            duration_7: "7 days",
+            duration_14: "14 days",
+            duration_custom: "Other",
+            search_agency: "Agency",
+            agency_select_all: "All agencies",
+            agency_section_title: "Partner Agencies",
+            agency_section_subtitle: "Choose a trusted travel partner",
+            agency_filter_all: "All partners",
+            agency_filter_local: "For Local Travelers",
+            agency_filter_global: "For International Guests",
+            agency_badge_verified: "Verified",
+            agency_view_tours: "View Agency Tours",
+            license_title: "Travel Agency License",
+            license_verified: "Verified Travel Agency",
+            license_number: "License Number:",
+            license_issued: "Issue Date:",
+            license_expires: "Expiry Date:",
+            license_authority: "Issuing Authority:",
+            license_status: "Status:",
+            license_active: "Active",
+            license_note: "This license is issued and verified by the Ministry of Tourism and Cultural Heritage of the Republic of Uzbekistan. The agency complies with all legal requirements.",
+            agency_atlas_name: "Atlas Travel",
+            agency_atlas_desc: "Premium packages and VIP service in 40+ destinations worldwide.",
+            agency_samarqand_name: "Samarqand Tours",
+            agency_samarqand_desc: "Experts in cultural tours, historical guides, and local experiences.",
+            agency_nomad_name: "Nomad Explorer",
+            agency_nomad_desc: "Active tours, trekking, and eco-tourism.",
+            agency_silk_name: "Silk Road Elite",
+            agency_silk_desc: "Luxury hotels, TNPL plans, and premium private guides.",
+            agency_clubtravel_name: "ClubTravel UZ",
+            agency_clubtravel_desc: "Affordable packages for families and groups, charters from Tashkent.",
+            agency_azialux_name: "AziaLux Travel",
+            agency_azialux_desc: "Exclusive gastro-tours in Asia and Europe, premium service.",
+            agency_globalvoyage_name: "Global Voyage Hub",
+            agency_globalvoyage_desc: "International conferences and MICE tours, 24/7 support and visa assistance.",
+            about_title: "About KETMON",
+            about_subtitle: "Central Asia's trusted travel marketplace connecting agencies and travelers.",
+            about_story_title: "Our Mission",
+            about_story_body1: "Inspired by the symbol of the ketmon, we place hard work and growth at the heart of every product and service.",
+            about_story_body2: "The platform features verified agencies, transparent pricing, and TNPL — all to save travelers time and budget.",
+            about_bullet_network: "Partners update packages in real-time and showcase destinations via video and stories.",
+            about_bullet_support: "24/7 support, built-in chat, and Telegram notifications help agencies stay in touch with clients.",
+            about_bullet_ai: "AI recommendations suggest personalized itineraries and speed up tour selection.",
+            about_stat_partners_value: "120+",
+            about_stat_partners_label: "partner agencies",
+            about_stat_tours_value: "650+",
+            about_stat_tours_label: "active tour packages",
+            about_stat_travelers_value: "45k+",
+            about_stat_travelers_label: "happy travelers",
+            about_stat_languages_value: "3",
+            about_stat_languages_label: "supported languages",
+            contact_title: "Contact Us",
+            contact_subtitle: "Leave a question or suggestion — we are here 24/7.",
+            contact_info_title: "Why KETMON?",
+            contact_info_body: "With KETMON, you work only with verified agencies, compare prices, and use TNPL for installments. A single dashboard simplifies work for both clients and agencies.",
+            contact_phone_label: "Phone",
+            contact_phone_value: "+998 90 765 43 21",
+            contact_email_label: "Email",
+            contact_email_value: "support@ketmon.uz",
+            contact_address_label: "Address",
+            contact_address_value: "Tashkent, Navoi St. 12, KETMON HUB",
+            contact_form_name_label: "Name",
+            contact_form_name_placeholder: "Your name",
+            contact_form_email_label: "Email",
+            contact_form_email_placeholder: "you@example.com",
+            contact_form_message_label: "Message",
+            contact_form_message_placeholder: "Describe your request...",
+            contact_submit_btn: "Send",
+            contact_status_placeholder: "We usually reply within 30 minutes.",
+            contact_success_message: "Your message has been received! We will contact you shortly.",
+            contact_error_message: "Please fill in all fields.",
+            calc_title: "Price, Rating, Sum",
+            calc_clear: "Clear",
+            calc_from: "from",
+            calc_before: "to",
+            search_guests: "Number of people",
+            search_btn: "Search",
+            late_escape_title: "Good time, not a long time",
+            late_escape_subtitle: "Make the most of late summer with at least 15% off",
+            late_escape_btn: "Find",
+            trending_title: "Trending destinations",
+            trending_subtitle: "Most popular choices for travelers from Uzbekistan",
+            explore_uz_title: "Explore Uzbekistan",
+            explore_uz_subtitle: "These popular destinations have a lot to offer",
+            explore_properties: "properties",
+            property_type_title: "Browse by property type",
+            property_hotels: "Hotels",
+            property_apartments: "Apartments",
+            property_resorts: "Resorts",
+            property_villas: "Villas",
+            trip_planner_title: "Quick and easy trip planner",
+            trip_planner_subtitle: "Pick a vibe and explore the top destinations in Uzbekistan",
+            trip_festivals: "Festivals",
+            trip_shopping: "Shopping and Crafts",
+            trip_gastronomic: "Gastronomic tours",
+            trip_cultural: "Cultural exploration",
+            trip_architecture: "Architecture tours",
+            trip_historical: "Historical sites",
+            weekend_deals_title: "Deals for the weekend",
+            weekend_deals_subtitle: "Save on stays for November 14 - November 16",
+            dest_tashkent: "Tashkent",
+            dest_samarkand: "Samarkand",
+            dest_istanbul: "Istanbul",
+            dest_bukhara: "Bukhara",
+            dest_dubai: "Dubai",
+            dest_khiva: "Khiva",
+            dest_chimgan: "Chimgan",
+            dest_fergana: "Fergana",
+            dest_kokand: "Kokand",
+            explore_tashkent_props: "1,409 properties",
+            explore_samarkand_props: "914 properties",
+            explore_bukhara_props: "587 properties",
+            explore_khiva_props: "163 properties",
+            explore_chimgan_props: "20 properties",
+            explore_fergana_props: "46 properties",
+            trip_tashkent_distance: "7 km away",
+            trip_kokand_distance: "165 km away",
+            trip_fergana_distance: "237 km away",
+            trip_samarkand_distance: "262 km away",
+            trip_bukhara_distance: "438 km away",
+            trip_khiva_distance: "739 km away",
+            deal_premium_hotel: "Premium Hotel",
+            deal_luxury_apartment: "Luxury Apartment",
+            deal_resort_stay: "Resort Stay",
+            deal_villa_retreat: "Villa Retreat",
+            deal_price_89: "$89/night",
+            deal_price_75: "$75/night",
+            deal_price_120: "$120/night",
+            deal_price_150: "$150/night",
+            destinations_title: "Popular Destinations",
+            destinations_subtitle: "Our top picks",
+            badge_popular: "Popular",
+            badge_sale: "Sale",
+            badge_new: "New",
+            btn_details: "Details",
+            price_per_person: "per person",
+            dest1_name: "Dubai, UAE",
+            dest1_desc: "Modern architecture meets ancient traditions",
+            dest2_name: "Paris, France",
+            dest2_desc: "City of love and romance, beautiful architecture",
+            dest3_name: "Istanbul, Turkey",
+            dest3_desc: "A stunning blend of East and West",
+            dest4_name: "Switzerland",
+            dest4_desc: "Alps and crystal-clear lakes",
+            dest5_name: "Tokyo, Japan",
+            dest5_desc: "A unique mix of technology and tradition",
+            dest6_name: "Rome, Italy",
+            dest6_desc: "Ancient history and magnificent architecture",
+            dest7_name: "Bangkok Gourmet, Thailand",
+            dest7_desc: "Gastronomic adventures, Michelin dining and personal guides.",
+            dest8_name: "London Summit, United Kingdom",
+            dest8_desc: "Business conference package, premium hotel and private transfers.",
+            dest9_name: "Baku Weekend, Azerbaijan",
+            dest9_desc: "Direct flight from Tashkent, 4* hotel and guided city tour.",
+            services_title: "Our Services",
+            services_subtitle: "Why choose us? We provide the best prices, professional service, and 24/7 support",
+            service1_title: "Flights",
+            service1_desc: "Book flight tickets at great prices",
+            service2_title: "Hotels",
+            service2_desc: "Comfortable hotels worldwide",
+            service3_title: "Excursions",
+            service3_desc: "Exciting tours with professional guides",
+            service4_title: "Visa Service",
+            service4_desc: "Visa processing",
+            service_why: "Why us?",
+            service1_advantage_text: "Real-time prices, 500+ airlines, instant booking",
+            service2_advantage_text: "50,000+ hotels, best prices, free cancellation",
+            service3_advantage_text: "Local guides, personalized itineraries, 24/7 support",
+            service4_advantage_text: "Fast visa processing, professional assistance, high success rate",
+
+            // Smart Calculator & Tours
+            calc_title_main: "Smart Calculator",
+            calc_city_default: "Select City",
+            calc_group_popular: "Popular",
+            calc_group_all: "All (A-Z)",
+            calc_recommend_btn: "Show Recommendations",
+            calc_no_results: "No tours found for this budget ({budget} sum). Please increase your budget.",
+            calc_days: "Days",
+            calc_book_btn: "Book Now",
+
+            // Titles
+            tour_istanbul_classic_title: "Istanbul Classic",
+            tour_istanbul_premium_title: "Istanbul Premium",
+            tour_dubai_trip_title: "Dubai Trip",
+            tour_dubai_luxe_title: "Dubai Luxe",
+            tour_sharm_relax_title: "Sharm Relax",
+            tour_paris_romantic_title: "Paris Romantic",
+            tour_london_tour_title: "London Tour",
+            tour_tashkent_city_title: "Around Tashkent",
+            tour_baku_wind_title: "Baku Winds",
+            tour_antalya_beach_title: "Antalya Beaches",
+            tour_tokyo_future_title: "Tokyo Future",
+            tour_seoul_culture_title: "Seoul Culture",
+            tour_kl_tropics_title: "Malaysia Tropics",
+
+            // Notes
+            tour_note_cheapest: "Cheapest Option",
+            tour_note_comfort: "For Comfort Lovers",
+            tour_note_fast: "Quick Trip",
+            tour_note_unforgettable: "Unforgettable Experience",
+            tour_note_ideal: "Ideal for Relax",
+            tour_note_couples: "For Couples",
+            tour_note_history: "For History Buffs",
+            tour_note_guests: "For Capital Guests",
+            tour_note_budget: "Budget Trip",
+            tour_note_summer: "For Summer Vacation",
+            tour_note_tech: "Tech & Culture",
+            tour_note_kpop: "K-Pop & History",
+            tour_note_nature: "Nature & City",
+
+            // Includes
+            inc_hotel_bf_trans: "Hotel, Breakfast, Transfer",
+            inc_5star_all_guide: "5* Hotel, All Meals, Guide",
+            inc_hotel_visa_trans: "Hotel, Visa, Transfer",
+            inc_burj_safari_5star: "Burj Khalifa, Safari, 5* Hotel",
+            inc_all_sea: "All Inclusive, Seaside",
+            inc_hotel_trans_eiffel: "Hotel, Transfer, Eiffel",
+            inc_hotel_guide_museum: "Hotel, Guide, Museums",
+            inc_hotel_guide_meal: "Hotel, Guide, Meals",
+            inc_hotel_trans_oldcity: "Hotel, Transfer, Old City",
+            inc_all_avia: "All Inclusive, Flight",
+            inc_hotel_metro_guide: "Hotel, Metro Card, Guide",
+            inc_hotel_palace_trans: "Hotel, Palaces, Transfer",
+            inc_hotel_trans_excur: "Hotel, Transfer, Excursions"
+
+        },
+        ru: {
+            phone: "+998 93 301 52 18",
+            email: "info@ketmon.uz",
+            nav_home: "Главная",
+            nav_destinations: "Направления",
+            nav_services: "Услуги",
+            nav_about: "О нас",
+            nav_contact: "Контакты",
+            nav_book: "Бронирование",
+            nav_login: "Войти",
+            nav_register: "Регистрация",
+            login_email_label: "Email",
+            login_email_placeholder: "you@example.com",
+            login_password_label: "Пароль",
+            login_password_placeholder: "••••••••",
+            register_switch: "Регистрация",
+            register_role_label: "Выберите роль",
+            register_customer_tab: "Клиент",
+            register_agency_tab: "Агентство",
+            register_name_label: "Имя",
+            register_name_placeholder: "Ваше имя",
+            register_email_label: "Email",
+            register_email_placeholder: "you@example.com",
+            register_password_label: "Пароль",
+            register_password_placeholder: "••••••••",
+            register_agency_name_label: "Название агентства",
+            register_agency_name_placeholder: "Название агентства",
+            register_license_label: "Номер лицензии",
+            register_license_placeholder: "ABC-123456",
+            register_agency_email_label: "Email агентства",
+            register_agency_email_placeholder: "agency@example.com",
+            register_agency_phone_label: "Телефон",
+            register_agency_phone_placeholder: "+998 xx xxx xx xx",
+            register_agency_password_label: "Пароль",
+            register_agency_password_placeholder: "••••••••",
+            register_submit: "Создать",
+            hero_title: "Незабываемые путешествия по всему миру",
+            hero_subtitle: "Откройте лучшие впечатления вместе с нами",
+            hero_btn1: "Смотреть направления",
+            hero_btn2: "Получить консультацию",
+            tour_consult_btn: "Получить консультацию",
+            search_destination: "Направление",
+            search_destination_placeholder: "Куда хотите поехать?",
+            search_date: "Дата",
+            search_duration: "Продолжительность",
+            duration_3: "3 дня",
+            duration_7: "7 дней",
+            duration_14: "14 дней",
+            duration_custom: "Другое",
+            search_agency: "Агентство",
+            agency_select_all: "Все агентства",
+            agency_section_title: "Партнерские агентства",
+            agency_section_subtitle: "Выберите надежного партнера для путешествия",
+            agency_filter_all: "Все партнеры",
+            agency_filter_local: "Для путешественников Узбекистана",
+            agency_filter_global: "Для иностранных гостей",
+            agency_badge_verified: "Проверено",
+            agency_view_tours: "Посмотреть туры агентства",
+            license_title: "Лицензия туристического агентства",
+            license_verified: "Проверенное туристическое агентство",
+            license_number: "Номер лицензии:",
+            license_issued: "Дата выдачи:",
+            license_expires: "Срок действия:",
+            license_authority: "Выдавший орган:",
+            license_status: "Статус:",
+            license_active: "Активна",
+            license_note: "Эта лицензия выдана и подтверждена Министерством туризма и культурного наследия Республики Узбекистан. Агентство соответствует всем правовым требованиям.",
+            agency_atlas_name: "Atlas Travel",
+            agency_atlas_desc: "Премиальные пакеты и VIP-сервис в 40+ направлениях по всему миру.",
+            agency_samarqand_name: "Samarqand Tours",
+            agency_samarqand_desc: "Эксперты по культурным путешествиям, историческим гидам и местному опыту.",
+            agency_nomad_name: "Nomad Explorer",
+            agency_nomad_desc: "Активные туры, треккинг и экологический туризм.",
+            agency_silk_name: "Silk Road Elite",
+            agency_silk_desc: "Лакшери-отели, TNPL планы и персональные гиды премиум-класса.",
+            agency_clubtravel_name: "ClubTravel UZ",
+            agency_clubtravel_desc: "Доступные пакеты для семей и групп, чартеры из Ташкента.",
+            agency_azialux_name: "AziaLux Travel",
+            agency_azialux_desc: "Эксклюзивные гастротуры по Азии и Европе, премиум-сервис.",
+            agency_globalvoyage_name: "Global Voyage Hub",
+            agency_globalvoyage_desc: "Международные конференции и MICE-туры, поддержка 24/7 и визовая помощь.",
+            about_title: "О платформе KETMON",
+            about_subtitle: "Надёжный маркетплейс путешествий Центральной Азии, объединяющий агентства и путешественников.",
+            about_story_title: "Наша миссия",
+            about_story_body1: "Вдохновляясь символом кетмона, мы ставим трудолюбие и рост в основу каждого продукта и сервиса.",
+            about_story_body2: "На платформе собраны проверенные агентства, прозрачные цены и TNPL — всё, чтобы экономить время и бюджет путешественников.",
+            about_bullet_network: "Партнёры обновляют пакеты в реальном времени и рассказывают о направлениях через видео и сторис.",
+            about_bullet_support: "Круглосуточная поддержка, встроенный чат и уведомления в Telegram помогают агентствам оставаться на связи с клиентами.",
+            about_bullet_ai: "AI-рекомендации предлагают персональные маршруты и ускоряют выбор тура.",
+            about_stat_partners_value: "120+",
+            about_stat_partners_label: "партнёрских агентств",
+            about_stat_tours_value: "650+",
+            about_stat_tours_label: "активных турпакетов",
+            about_stat_travelers_value: "45k+",
+            about_stat_travelers_label: "довольных путешественников",
+            about_stat_languages_value: "3",
+            about_stat_languages_label: "языков поддержки",
+            contact_title: "Свяжитесь с нами",
+            contact_subtitle: "Оставьте вопрос или предложение — мы на связи 24/7.",
+            contact_info_title: "Почему KETMON?",
+            contact_info_body: "С KETMON вы сотрудничаете только с проверенными агентствами, сравниваете цены и используете TNPL для рассрочки. Единая панель упрощает работу и для клиентов, и для агентств.",
+            contact_phone_label: "Телефон",
+            contact_phone_value: "+998 90 765 43 21",
+            contact_email_label: "Email",
+            contact_email_value: "support@ketmon.uz",
+            contact_address_label: "Адрес",
+            contact_address_value: "Ташкент, ул. Навои 12, KETMON HUB",
+            contact_form_name_label: "Имя",
+            contact_form_name_placeholder: "Ваше имя",
+            contact_form_email_label: "Email",
+            contact_form_email_placeholder: "you@example.com",
+            contact_form_message_label: "Сообщение",
+            contact_form_message_placeholder: "Опишите запрос...",
+            contact_submit_btn: "Отправить",
+            contact_status_placeholder: "Обычно отвечаем в течение 30 минут.",
+            contact_success_message: "Ваше сообщение принято! Мы свяжемся с вами в ближайшее время.",
+            contact_error_message: "Заполните, пожалуйста, все поля формы.",
+            calc_title: "Цена, оценка, сум",
+            calc_clear: "Очистить",
+            calc_from: "от",
+            calc_before: "до",
             search_guests: "Количество людей",
             search_btn: "Искать",
             late_escape_title: "Хорошее время, а не долгое",
@@ -900,6 +1454,7 @@ document.addEventListener('click', function (e) {
             hero_subtitle: "Discover your best experiences with us",
             hero_btn1: "View Destinations",
             hero_btn2: "Get a Consultation",
+            tour_consult_btn: "Get Consultation",
             search_destination: "Destination",
             search_destination_placeholder: "Where do you want to go?",
             search_date: "Date",
@@ -976,33 +1531,10 @@ document.addEventListener('click', function (e) {
             contact_status_placeholder: "We usually reply within 30 minutes.",
             contact_success_message: "Thanks for reaching out! We will get back to you shortly.",
             contact_error_message: "Please fill in every field before sending.",
-            ai_assistant_title: "Smart AI Assistant",
-            ai_assistant_subtitle: "Get tailored tour ideas based on budget, destinations, and travel season.",
-            ai_budget_label: "Budget (USD)",
-            ai_budget_placeholder: "1500",
-            ai_destination_label: "Preferred destinations",
-            ai_destination_placeholder: "Asia, Europe...",
-            ai_season_label: "Travel season",
-            ai_season_summer: "Summer",
-            ai_season_autumn: "Autumn",
-            ai_season_winter: "Winter",
-            ai_season_spring: "Spring",
-            ai_month_label: "Month",
-            ai_month_select: "Select",
-            ai_month_january: "January",
-            ai_month_february: "February",
-            ai_month_march: "March",
-            ai_month_april: "April",
-            ai_month_may: "May",
-            ai_month_june: "June",
-            ai_month_july: "July",
-            ai_month_august: "August",
-            ai_month_september: "September",
-            ai_month_october: "October",
-            ai_month_november: "November",
-            ai_month_december: "December",
-            ai_generate_btn: "Show recommendations",
-            ai_response_placeholder: "Ask the AI assistant for personalised tour ideas.",
+            calc_title: "Price, rating, sum",
+            calc_clear: "Clear",
+            calc_from: "from",
+            calc_before: "to",
             search_guests: "Guests",
             search_btn: "Search",
             late_escape_title: "Go for a good time, not a long time",
@@ -1099,6 +1631,10 @@ document.addEventListener('click', function (e) {
             service4_advantage_text: "Fast visa processing, professional assistance, high success rate"
         }
     };
+
+    // Expose for global access
+    window.ketmonI18n = i18n;
+
     function applyTranslations(lang) {
         var dict = i18n[lang] || i18n.uz;
         // Helper to check whether a user is currently authenticated (local-only check)
@@ -1131,7 +1667,7 @@ document.addEventListener('click', function (e) {
                 if (key === 'ai_budget_label') {
                     return;
                 }
-                
+
                 // Only update if this element doesn't have child elements with data-text
                 // (to avoid overwriting child translations)
                 var hasTranslatableChildren = Array.from(el.children).some(function (child) {
@@ -1198,6 +1734,11 @@ document.addEventListener('click', function (e) {
 
         applyTranslations(lang);
         localStorage.setItem('ketmon_lang', lang);
+
+        // Dispatch global event for other components
+        document.dispatchEvent(new CustomEvent('languageChanged', {
+            detail: { language: lang }
+        }));
     }
 
     function toggleLangDropdown(e) {
@@ -1282,11 +1823,11 @@ document.addEventListener('click', function (e) {
     window.i18n = i18n;
 
     // Close dropdown when clicking outside
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         var langDropdown = document.getElementById('langDropdown');
         var langSelector = document.querySelector('.lang-selector');
         var langBtn = document.getElementById('langDropdownBtn');
-        
+
         if (langDropdown && langSelector && langBtn) {
             // Check if click is outside the language selector
             if (!langSelector.contains(e.target) && !langBtn.contains(e.target)) {
@@ -1309,13 +1850,13 @@ document.addEventListener('click', function (e) {
                 item.classList.add('active');
             }
         });
-        
+
         // Ensure the button has proper event handling
         var langBtn = document.getElementById('langDropdownBtn');
         if (langBtn) {
             // Remove any existing onclick and add event listener
             langBtn.onclick = null;
-            langBtn.addEventListener('click', function(e) {
+            langBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
                 toggleLangDropdown(e);
@@ -1440,7 +1981,7 @@ document.addEventListener('click', function (e) {
         initPrices();
         updatePrices(currency);
         localStorage.setItem('ketmon_currency', currency);
-        
+
         // Update AI Assistant budget label
         if (typeof updateAIBudgetLabel === 'function') {
             updateAIBudgetLabel(currency);
@@ -1530,9 +2071,9 @@ document.addEventListener('click', function (e) {
     function updateAIBudgetLabel(currency) {
         var aiBudgetLabel = document.querySelector('label[for="aiBudget"]');
         var aiBudgetInput = document.getElementById('aiBudget');
-        
+
         if (!aiBudgetLabel || !aiBudgetInput) return;
-        
+
         // Get current language for "Budjet" word translation
         var currentLang = localStorage.getItem('ketmon_lang') || 'uz';
         var budgetWord = 'Budjet';
@@ -1541,28 +2082,28 @@ document.addEventListener('click', function (e) {
         } else if (currentLang === 'en') {
             budgetWord = 'Budget';
         }
-        
+
         var currencyLabels = {
             'sum': budgetWord + ' (SO\'M)',
             'usd': budgetWord + ' (USD)',
             'rub': budgetWord + ' (RUB)'
         };
-        
+
         var currencyPlaceholders = {
             'sum': '15000000',
             'usd': '1500',
             'rub': '135000'
         };
-        
+
         var currencyMinValues = {
             'sum': '1250000',
             'usd': '100',
             'rub': '9000'
         };
-        
+
         // Update label
         aiBudgetLabel.textContent = currencyLabels[currency] || currencyLabels['usd'];
-        
+
         // Update placeholder
         if (aiBudgetInput) {
             aiBudgetInput.placeholder = currencyPlaceholders[currency] || currencyPlaceholders['usd'];
@@ -1604,7 +2145,7 @@ document.addEventListener('click', function (e) {
             }
         }
     });
-    
+
     // User Account Dropdown Functions
     function toggleUserAccountDropdown(e) {
         if (e) {
@@ -1624,7 +2165,7 @@ document.addEventListener('click', function (e) {
             if (currencyDropdown) currencyDropdown.classList.remove('show');
             var currencySelector = document.querySelector('.currency-selector');
             if (currencySelector) currencySelector.classList.remove('active');
-            
+
             if (isOpen) {
                 dropdown.classList.remove('show');
                 selector.classList.remove('active');
@@ -1634,7 +2175,7 @@ document.addEventListener('click', function (e) {
                 // Force reflow
                 dropdown.offsetHeight;
                 // Add show class for animation
-                setTimeout(function() {
+                setTimeout(function () {
                     dropdown.classList.add('show');
                     selector.classList.add('active');
                 }, 10);
@@ -1648,7 +2189,7 @@ document.addEventListener('click', function (e) {
         if (dropdown) {
             dropdown.classList.remove('show');
             // Hide after animation completes
-            setTimeout(function() {
+            setTimeout(function () {
                 if (!dropdown.classList.contains('show')) {
                     dropdown.style.display = 'none';
                 }
@@ -1676,7 +2217,7 @@ document.addEventListener('click', function (e) {
                 item.classList.add('active');
             }
         });
-        
+
         // Update AI Assistant budget label on page load
         if (typeof updateAIBudgetLabel === 'function') {
             updateAIBudgetLabel(saved);
@@ -1703,6 +2244,74 @@ document.addEventListener('click', function (e) {
             const headerHeight = header ? header.offsetHeight : 80;
             smoothScrollTo(dest, headerHeight, 600);
         }
+    });
+})();
+
+// Category Filter Logic
+(function () {
+    const catBtns = document.querySelectorAll('.category-btn');
+    const destGrid = document.querySelector('.destination-grid');
+
+    if (!catBtns.length || !destGrid) return; // Grid might be missing if on wrong page
+
+    catBtns.forEach(btn => {
+        btn.addEventListener('click', function () {
+            // UI Toggle
+            catBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+
+            const cat = this.getAttribute('data-cat');
+
+            // Clear grid to simulate fresh filter
+            destGrid.innerHTML = '';
+
+            // Visual loading
+            const loading = document.createElement('div');
+            loading.className = 'loading-spinner-grid';
+            loading.style.textAlign = 'center';
+            loading.style.padding = '20px';
+            loading.style.color = '#fff';
+            loading.textContent = 'Loading ' + cat + ' tours...';
+            destGrid.appendChild(loading);
+
+            setTimeout(() => {
+                loading.remove();
+
+                // Repopulate with mock cards
+                // We try to find a template or just create generic ones
+                // Note: In a real app we would filter the `tourData` array and render.
+
+                for (let i = 0; i < 6; i++) {
+                    const card = document.createElement('div');
+                    card.className = 'destination-card';
+                    card.setAttribute('data-category', cat);
+                    card.innerHTML = `
+                        <div class="destination-img">
+                             <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=800&q=80" alt="Tour ${i}">
+                             <span class="destination-badge">${cat.toUpperCase()}</span>
+                        </div>
+                        <div class="destination-info">
+                            <h3 class="destination-title">${cat.charAt(0).toUpperCase() + cat.slice(1)} Adventure ${i + 1}</h3>
+                            <p class="destination-desc">Experience the best of ${cat} travel styles with our premium package.</p>
+                            <div class="destination-meta">
+                                <span><i class="fas fa-clock"></i> 7 kun</span>
+                                <span class="price">$${600 + i * 50}</span>
+                            </div>
+                        </div>
+                    `;
+                    // Add click handler for modal
+                    card.addEventListener('click', function () {
+                        // We can call openModal logic if exposed, or just rely on global delegation if setup
+                        // The global delegation is setup on document or grid? 
+                        // Check HandleCard below... it's inside a closure. 
+                        // But we can trigger a click on a known element or just re-add listener if needed.
+                        // Actually, existing logic uses delegated event listener on `grid`?
+                    });
+
+                    destGrid.appendChild(card);
+                }
+            }, 600);
+        });
     });
 })();
 
@@ -1802,6 +2411,39 @@ document.addEventListener('click', function (e) {
             }
         };
 
+        // Consultation Button Logic
+        var consultBtn = document.getElementById('tourConsultBtn');
+        if (!consultBtn && bookBtn && bookBtn.parentNode) {
+            consultBtn = document.createElement('button');
+            consultBtn.id = 'tourConsultBtn';
+            consultBtn.className = 'btn-secondary';
+            consultBtn.setAttribute('data-text', 'tour_consult_btn');
+
+            // Set initial text based on current language
+            var currentLang = localStorage.getItem('ketmon_lang') || 'uz';
+            if (window.i18n && window.i18n[currentLang]) {
+                consultBtn.textContent = window.i18n[currentLang].tour_consult_btn;
+            } else {
+                consultBtn.textContent = 'Maslahat olish';
+            }
+
+            consultBtn.style.marginRight = '10px';
+            // Insert before book button
+            bookBtn.parentNode.insertBefore(consultBtn, bookBtn);
+        }
+
+        if (consultBtn) {
+            consultBtn.onclick = function () {
+                closeModal();
+                if (window.openChatbot) {
+                    window.openChatbot('agency', {
+                        agencyName: agencyName,
+                        tourTitle: title
+                    });
+                }
+            };
+        }
+
         openModal();
     }
 
@@ -1847,7 +2489,17 @@ document.addEventListener('click', function (e) {
 
     function enable() {
         ensureLength();
-        grid.addEventListener('scroll', maybeExtend, { passive: true });
+        // Throttled scroll listener
+        var ticking = false;
+        grid.addEventListener('scroll', function () {
+            if (!ticking) {
+                window.requestAnimationFrame(function () {
+                    maybeExtend();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -1858,154 +2510,8 @@ document.addEventListener('click', function (e) {
     window.addEventListener('resize', ensureLength);
 })();
 
-/* Scroll by 1 destination at a time */
-(function () {
-    var grid = document.querySelector('.destinations .destination-grid');
-    if (!grid) return;
+// Manual scroll handling removed to strictly use CSS scroll-snap
 
-    var isScrolling = false;
-    var scrollTimeout = null;
-    var cardWidth = 320; // Card width in pixels
-    var gap = 25; // Gap between cards in pixels
-    var cardsPerScroll = 1; // Number of cards to scroll at once
-    var scrollDistance = cardWidth + gap; // Distance for 1 card
-
-    // Calculate the nearest snap position for a single card
-    function getNearestSnapPosition(currentScroll) {
-        // Calculate which card we're closest to
-        var cardIndex = Math.round(currentScroll / scrollDistance);
-        return cardIndex * scrollDistance;
-    }
-
-    // Handle wheel scroll events
-    function handleWheelScroll(e) {
-        // Only handle horizontal scrolling
-        if (Math.abs(e.deltaX) < Math.abs(e.deltaY)) {
-            return; // Vertical scroll, let it pass through
-        }
-
-        // Prevent default horizontal scroll
-        e.preventDefault();
-
-        if (isScrolling) return;
-
-        var currentScroll = grid.scrollLeft;
-        var direction = e.deltaX > 0 ? 1 : -1; // 1 for right, -1 for left
-        var targetScroll = currentScroll + (direction * scrollDistance);
-
-        // Clamp to valid scroll range
-        var maxScroll = grid.scrollWidth - grid.clientWidth;
-        targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-
-        // Snap to nearest card
-        targetScroll = getNearestSnapPosition(targetScroll);
-
-        // Smooth scroll to target position
-        isScrolling = true;
-        grid.scrollTo({
-            left: targetScroll,
-            behavior: 'smooth'
-        });
-
-        // Reset scrolling flag after animation
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function () {
-            isScrolling = false;
-        }, 500);
-    }
-
-    // Handle touch/swipe scrolling
-    var touchStartX = 0;
-    var touchStartScroll = 0;
-    var isTouching = false;
-
-    function handleTouchStart(e) {
-        touchStartX = e.touches[0].clientX;
-        touchStartScroll = grid.scrollLeft;
-        isTouching = true;
-    }
-
-    function handleTouchEnd(e) {
-        if (!isTouching) return;
-        isTouching = false;
-
-        var touchEndX = e.changedTouches[0].clientX;
-        var deltaX = touchStartX - touchEndX;
-        var minSwipeDistance = 50; // Minimum swipe distance to trigger scroll
-
-        if (Math.abs(deltaX) < minSwipeDistance) {
-            // Small swipe, snap to nearest card
-            var currentScroll = grid.scrollLeft;
-            var targetScroll = getNearestSnapPosition(currentScroll);
-            grid.scrollTo({
-                left: targetScroll,
-                behavior: 'smooth'
-            });
-        } else {
-            // Large swipe, scroll by 1 card in swipe direction
-            var direction = deltaX > 0 ? 1 : -1;
-            var currentScroll = grid.scrollLeft;
-            var targetScroll = currentScroll + (direction * scrollDistance);
-            var maxScroll = grid.scrollWidth - grid.clientWidth;
-            targetScroll = Math.max(0, Math.min(targetScroll, maxScroll));
-            targetScroll = getNearestSnapPosition(targetScroll);
-
-            grid.scrollTo({
-                left: targetScroll,
-                behavior: 'smooth'
-            });
-        }
-    }
-
-    // Handle scroll end to snap to nearest card
-    function handleScrollEnd() {
-        if (isScrolling) return;
-
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(function () {
-            var currentScroll = grid.scrollLeft;
-            var targetScroll = getNearestSnapPosition(currentScroll);
-            
-            // Only snap if we're not already at a snap position (within 10px tolerance)
-            if (Math.abs(currentScroll - targetScroll) > 10) {
-                grid.scrollTo({
-                    left: targetScroll,
-                    behavior: 'smooth'
-                });
-            }
-        }, 150);
-    }
-
-    // Add event listeners
-    grid.addEventListener('wheel', handleWheelScroll, { passive: false });
-    grid.addEventListener('touchstart', handleTouchStart, { passive: true });
-    grid.addEventListener('touchend', handleTouchEnd, { passive: true });
-    grid.addEventListener('scroll', handleScrollEnd, { passive: true });
-
-    // Also handle mouse drag scrolling
-    var isMouseDown = false;
-    var mouseStartX = 0;
-    var mouseStartScroll = 0;
-
-    grid.addEventListener('mousedown', function (e) {
-        isMouseDown = true;
-        mouseStartX = e.clientX;
-        mouseStartScroll = grid.scrollLeft;
-    });
-
-    document.addEventListener('mousemove', function (e) {
-        if (!isMouseDown) return;
-        var deltaX = mouseStartX - e.clientX;
-        grid.scrollLeft = mouseStartScroll + deltaX;
-    });
-
-    document.addEventListener('mouseup', function () {
-        if (isMouseDown) {
-            isMouseDown = false;
-            handleScrollEnd();
-        }
-    });
-})();
 
 // Agency filter interactions
 (function () {
@@ -2145,7 +2651,17 @@ document.addEventListener('click', function (e) {
 
     function enable() {
         ensureLength();
-        grid.addEventListener('scroll', maybeExtend, { passive: true });
+        // Throttled scroll listener
+        var ticking = false;
+        grid.addEventListener('scroll', function () {
+            if (!ticking) {
+                window.requestAnimationFrame(function () {
+                    maybeExtend();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
     }
 
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
@@ -2228,11 +2744,11 @@ document.addEventListener('click', function (e) {
     var paymentMethodInputs = document.querySelectorAll('input[name="paymentMethod"]');
     var paymentCardFields = document.getElementById('paymentCardFields');
     var paymentCardNumberField = document.getElementById('paymentCardNumber');
-    
+
     function togglePaymentFields(method) {
         var paymentExpiryField = document.getElementById('paymentExpiry');
         var paymentCVVField = document.getElementById('paymentCVV');
-        
+
         if (method === 'installment') {
             // For installment payment, show only card number, hide CVV and expiry
             if (paymentCardFields) {
@@ -2276,29 +2792,29 @@ document.addEventListener('click', function (e) {
             }
         }
     }
-    
+
     // Add event listeners to payment method radio buttons
     if (paymentMethodInputs.length > 0) {
-        paymentMethodInputs.forEach(function(radio) {
-            radio.addEventListener('change', function() {
+        paymentMethodInputs.forEach(function (radio) {
+            radio.addEventListener('change', function () {
                 togglePaymentFields(this.value);
             });
         });
-        
+
         // Initialize on page load
         var selectedMethod = document.querySelector('input[name="paymentMethod"]:checked');
         if (selectedMethod) {
             togglePaymentFields(selectedMethod.value);
         }
     }
-    
+
     if (paymentForm) {
         paymentForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
             // Get selected payment method
             var paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'full';
-            
+
             // Get form data
             var formData = {
                 name: document.getElementById('paymentName').value,
@@ -2326,7 +2842,7 @@ document.addEventListener('click', function (e) {
                 submitBtn.disabled = false;
 
                 // Show success message based on payment method
-                var successMessage = paymentMethod === 'installment' 
+                var successMessage = paymentMethod === 'installment'
                     ? 'Bo\'lib to\'lash muvaffaqiyatli boshlandi! Batafsil ma\'lumot telefon orqali yuboriladi.'
                     : 'To\'lov muvaffaqiyatli amalga oshirildi! Batafsil ma\'lumot email orqali yuboriladi.';
                 alert(successMessage);
@@ -2465,20 +2981,20 @@ document.addEventListener('click', function (e) {
     if (mobileRegisterBtn) {
         mobileRegisterBtn.addEventListener('click', function (e) { e.preventDefault(); open(registerModal); });
     }
-    
+
     // User account dropdown login/register buttons
     var userAccountLoginBtn = document.getElementById('userAccountLoginBtn');
     var userAccountRegisterBtn = document.getElementById('userAccountRegisterBtn');
     var loginModal = document.getElementById('loginModal');
     var registerModal = document.getElementById('registerModal');
-    
+
     if (userAccountLoginBtn) {
-        userAccountLoginBtn.addEventListener('click', function (e) { 
-            e.preventDefault(); 
+        userAccountLoginBtn.addEventListener('click', function (e) {
+            e.preventDefault();
             e.stopPropagation();
             closeUserAccountDropdown();
             if (loginModal) {
-                setTimeout(function() {
+                setTimeout(function () {
                     loginModal.classList.add('open');
                     document.body.style.overflow = 'hidden';
                 }, 100);
@@ -2486,12 +3002,12 @@ document.addEventListener('click', function (e) {
         });
     }
     if (userAccountRegisterBtn) {
-        userAccountRegisterBtn.addEventListener('click', function (e) { 
-            e.preventDefault(); 
+        userAccountRegisterBtn.addEventListener('click', function (e) {
+            e.preventDefault();
             e.stopPropagation();
             closeUserAccountDropdown();
             if (registerModal) {
-                setTimeout(function() {
+                setTimeout(function () {
                     registerModal.classList.add('open');
                     document.body.style.overflow = 'hidden';
                 }, 100);
@@ -2955,7 +3471,7 @@ document.addEventListener('click', function (e) {
         try {
             // Call backend API
             var response = await authAPI.login(email, password);
-            
+
             if (response.success) {
                 // Store token and user data
                 setAuthToken(response.token);
@@ -2978,10 +3494,10 @@ document.addEventListener('click', function (e) {
     document.getElementById('registerForm').addEventListener('submit', async function (e) {
         e.preventDefault();
         var role = document.getElementById('regRole').value;
-        
+
         try {
             var response;
-            
+
             if (role === 'agency') {
                 var aname = document.getElementById('regAgencyName').value.trim() || '';
                 var lic = document.getElementById('regLicense').value.trim() || '';
@@ -3036,7 +3552,7 @@ document.addEventListener('click', function (e) {
                 // Store token and user data
                 setAuthToken(response.token);
                 localStorage.setItem('ketmon_user', JSON.stringify(response.user));
-                
+
                 if (response.agency) {
                     localStorage.setItem('ketmon_agency', JSON.stringify(response.agency));
                 }
@@ -3265,288 +3781,178 @@ document.addEventListener('click', function (e) {
     // Initialize with festivals category (active by default)
     filterDestinations('festivals');
 })();
-
 // AI Assistant functionality
+var aiForm = document.getElementById('aiForm');
+var aiResponse = document.getElementById('aiResponse');
+var aiSeason = document.getElementById('aiSeason');
+var aiMonthField = document.getElementById('aiMonthField');
+var aiMonth = document.getElementById('aiMonth');
+
+// Season to months mapping
+var seasonMonths = {
+    'summer': ['june', 'july', 'august'],      // Yoz: Iyun, Iyul, Avgust
+    'autumn': ['september', 'october', 'november'], // Kuz: Sentabr, Oktabr, Noyabr
+    'winter': ['december', 'january', 'february'],  // Qish: Dekabr, Yanvar, Fevral
+    'spring': ['march', 'april', 'may']        // Bahor: Mart, Aprel, May
+};
+
+// Store all month options
+var allMonthOptions = [];
+if (aiMonth) {
+    var options = aiMonth.querySelectorAll('option');
+    options.forEach(function (opt) {
+        allMonthOptions.push({
+            value: opt.value,
+            text: opt.textContent,
+            dataText: opt.getAttribute('data-text'),
+            element: opt.cloneNode(true)
+        });
+    });
+}
+
+function filterMonthsBySeason(season) {
+    if (!aiMonth) return;
+
+    // Clear current options except the first (default "Tanlang")
+    aiMonth.innerHTML = '';
+
+    // Add default option
+    var defaultOption = allMonthOptions[0];
+    if (defaultOption) {
+        var opt = defaultOption.element.cloneNode(true);
+        aiMonth.appendChild(opt);
+    }
+
+    // Filter and add months based on season
+    if (seasonMonths[season]) {
+        seasonMonths[season].forEach(function (val) {
+            var found = allMonthOptions.find(function (o) { return o.value === val; });
+            if (found) {
+                aiMonth.appendChild(found.element.cloneNode(true));
+            }
+        });
+    }
+}
+
+// Add event listener for season change
+if (aiSeason) {
+    aiSeason.addEventListener('change', function () {
+        filterMonthsBySeason(this.value);
+    });
+}
+
+// Smart Calculator Implementation
 (function () {
-    var aiForm = document.getElementById('aiForm');
-    var aiResponse = document.getElementById('aiResponse');
-    var aiSeason = document.getElementById('aiSeason');
-    var aiMonthField = document.getElementById('aiMonthField');
-    var aiMonth = document.getElementById('aiMonth');
+    const minVal = document.getElementById("sliderMin");
+    const maxVal = document.getElementById("sliderMax");
+    const minInput = document.getElementById("priceMin");
+    const maxInput = document.getElementById("priceMax");
+    const range = document.querySelector(".slider-range");
+    const clearBtn = document.getElementById("calcClear");
 
-    // Season to months mapping
-    var seasonMonths = {
-        'summer': ['june', 'july', 'august'],      // Yoz: Iyun, Iyul, Avgust
-        'autumn': ['september', 'october', 'november'], // Kuz: Sentabr, Oktabr, Noyabr
-        'winter': ['december', 'january', 'february'],  // Qish: Dekabr, Yanvar, Fevral
-        'spring': ['march', 'april', 'may']        // Bahor: Mart, Aprel, May
-    };
+    if (!minVal || !maxVal || !minInput || !maxInput || !range) return;
 
-    // Store all month options
-    var allMonthOptions = [];
-    if (aiMonth) {
-        var options = aiMonth.querySelectorAll('option');
-        options.forEach(function (opt) {
-            allMonthOptions.push({
-                value: opt.value,
-                text: opt.textContent,
-                dataText: opt.getAttribute('data-text'),
-                element: opt.cloneNode(true)
-            });
-        });
+    const minGap = 1000000;
+    const maxLimit = 100000000;
+
+    function formatPrice(price) {
+        return price.toLocaleString('uz-UZ'); // Format numbers nicely
     }
 
-    function filterMonthsBySeason(season) {
-        if (!aiMonth) return;
-
-        // Clear current options except the first (default "Tanlang")
-        aiMonth.innerHTML = '';
-
-        // Add default option
-        var defaultOption = allMonthOptions[0];
-        if (defaultOption) {
-            var opt = defaultOption.element.cloneNode(true);
-            aiMonth.appendChild(opt);
+    function slideMin() {
+        let gap = parseInt(maxVal.value) - parseInt(minVal.value);
+        if (gap <= minGap) {
+            minVal.value = parseInt(maxVal.value) - minGap;
         }
-
-        // Get months for selected season
-        var monthsForSeason = seasonMonths[season] || [];
-
-        // Add filtered month options
-        allMonthOptions.forEach(function (month) {
-            if (month.value && monthsForSeason.includes(month.value)) {
-                var opt = month.element.cloneNode(true);
-                aiMonth.appendChild(opt);
-            }
-        });
+        minInput.value = minVal.value;
+        setArea();
     }
 
-    // Show/hide month field based on season selection
-    if (aiSeason && aiMonthField) {
-        aiSeason.addEventListener('change', function () {
-            var season = this.value;
-            // Show month field for any season selection
-            if (season) {
-                aiMonthField.style.display = 'block';
-                // Filter months based on selected season
-                filterMonthsBySeason(season);
-                // Reset month to default empty value when season changes
-                if (aiMonth) {
-                    aiMonth.value = '';
-                }
+    function slideMax() {
+        let gap = parseInt(maxVal.value) - parseInt(minVal.value);
+        if (gap <= minGap) {
+            maxVal.value = parseInt(minVal.value) + minGap;
+        }
+        maxInput.value = maxVal.value;
+        setArea();
+    }
+
+    function setInput(e) {
+        const min = parseInt(minInput.value);
+        const max = parseInt(maxInput.value);
+
+        if (max - min >= minGap && max <= maxLimit) {
+            if (e.target.className === "min-input") {
+                minVal.value = min;
+                slideMin();
             } else {
-                aiMonthField.style.display = 'none';
-                // Reset month to default empty value
-                if (aiMonth) {
-                    aiMonth.value = '';
-                }
-            }
-        });
-    }
-
-    // Handle form submission
-    if (aiForm && aiResponse) {
-        aiForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            var budget = document.getElementById('aiBudget').value;
-            var destination = document.getElementById('aiDestination').value;
-            var season = aiSeason ? aiSeason.value : '';
-            var month = aiMonth ? aiMonth.value : '';
-
-            // Validation
-            if (!budget || parseFloat(budget) <= 0) {
-                aiResponse.textContent = 'Iltimos, budjetni kiriting.';
-                aiResponse.style.color = '#e74c3c';
-                return;
-            }
-
-            // Get current currency and convert budget to USD for calculations
-            var currentCurrency = localStorage.getItem('ketmon_currency') || 'usd';
-            var budgetValue = parseFloat(budget);
-            
-            // Exchange rates (same as in currency switcher)
-            var exchangeRates = {
-                usd: {
-                    sum: 12500,  // 1 USD = 12500 UZS
-                    rub: 90      // 1 USD = 90 RUB
-                },
-                rub: {
-                    sum: 139,    // 1 RUB = 139 UZS
-                    usd: 0.011   // 1 RUB = 0.011 USD
-                },
-                sum: {
-                    usd: 0.00008, // 1 UZS = 0.00008 USD
-                    rub: 0.0072   // 1 UZS = 0.0072 RUB
-                }
-            };
-            
-            // Convert budget to USD for internal calculations
-            var budgetInUSD = budgetValue;
-            if (currentCurrency === 'sum') {
-                budgetInUSD = budgetValue * exchangeRates.sum.usd;
-            } else if (currentCurrency === 'rub') {
-                budgetInUSD = budgetValue * exchangeRates.rub.usd;
-            }
-            
-            // Ensure minimum budget in USD (at least 50 USD equivalent)
-            if (budgetInUSD < 50) {
-                aiResponse.textContent = 'Iltimos, budjetni kiriting.';
-                aiResponse.style.color = '#e74c3c';
-                return;
-            }
-
-            // Show loading state
-            aiResponse.innerHTML = '<div style="text-align: center; padding: 20px;">⏳ Tavsiyalar tayyorlanmoqda...</div>';
-            aiResponse.style.color = '#0a4d68';
-
-            // Simulate AI processing (in a real app, this would call an API)
-            setTimeout(function () {
-                var recommendations = generateRecommendations({
-                    budget: budgetInUSD,
-                    destination: destination,
-                    season: season,
-                    month: month,
-                    currency: currentCurrency,
-                    originalBudget: budgetValue
-                });
-
-                displayRecommendations(recommendations, currentCurrency, exchangeRates);
-            }, 1500);
-        });
-    }
-
-    function generateRecommendations(params) {
-        var recommendations = [];
-        var basePrice = params.budget;
-        var destinations = ['Dubai', 'Istanbul', 'Bali', 'Thailand', 'Malaysia', 'Singapore', 'Maldives', 'Egypt', 'Türkiye', 'UAE'];
-
-        // Filter destinations if specified
-        if (params.destination) {
-            var searchDest = params.destination.toLowerCase();
-            destinations = destinations.filter(function (d) {
-                return d.toLowerCase().includes(searchDest) ||
-                    (searchDest.includes('osiyo') && ['Bali', 'Thailand', 'Malaysia', 'Singapore', 'Maldives'].includes(d)) ||
-                    (searchDest.includes('yevropa') && ['Istanbul', 'Türkiye'].includes(d)) ||
-                    (searchDest.includes('o\'rta sharq') && ['Dubai', 'UAE', 'Egypt'].includes(d));
-            });
-            if (destinations.length === 0) {
-                destinations = ['Dubai', 'Istanbul', 'Bali', 'Thailand'];
+                maxVal.value = max;
+                slideMax();
             }
         }
+    }
 
-        // Generate 3-5 recommendations within budget
-        var numRecs = Math.min(Math.max(3, Math.floor(basePrice / 500)), 5);
-        var usedDests = {};
+    function setArea() {
+        if (!minVal || !maxVal) return;
+        const rangeMin = parseInt(minVal.min);
+        const rangeMax = parseInt(minVal.max); // 100,000,000
 
-        for (var i = 0; i < numRecs; i++) {
-            var dest = destinations[Math.floor(Math.random() * destinations.length)];
-            var attempts = 0;
-            while (usedDests[dest] && attempts < 20) {
-                dest = destinations[Math.floor(Math.random() * destinations.length)];
-                attempts++;
-            }
-            usedDests[dest] = true;
+        const percent1 = ((parseInt(minVal.value) - rangeMin) / (rangeMax - rangeMin)) * 100;
+        const percent2 = ((parseInt(maxVal.value) - rangeMin) / (rangeMax - rangeMin)) * 100;
 
-            var price = Math.round((basePrice * (0.7 + Math.random() * 0.6)) / 100) * 100;
-            var duration = [3, 5, 7, 10, 14][Math.floor(Math.random() * 5)];
+        range.style.left = percent1 + "%";
+        range.style.width = (percent2 - percent1) + "%";
+    }
 
-            recommendations.push({
-                destination: dest,
-                price: price,
-                duration: duration + ' kun',
-                description: getDestinationDescription(dest, params.season)
-            });
-        }
+    // Initialize
+    slideMin();
+    slideMax();
 
-        // Sort by price closest to budget
-        recommendations.sort(function (a, b) {
-            return Math.abs(a.price - basePrice) - Math.abs(b.price - basePrice);
+    // Event Listeners
+    minVal.addEventListener("input", slideMin);
+    maxVal.addEventListener("input", slideMax);
+
+    // Allow typing in inputs updating sliders (basic validation)
+    minInput.addEventListener("change", function () {
+        let val = parseInt(this.value);
+        if (val < parseInt(minVal.min)) val = parseInt(minVal.min);
+        if (val > parseInt(maxVal.value) - minGap) val = parseInt(maxVal.value) - minGap;
+        this.value = val;
+        minVal.value = val;
+        setArea();
+    });
+
+    maxInput.addEventListener("change", function () {
+        let val = parseInt(this.value);
+        if (val > parseInt(maxVal.max)) val = parseInt(maxVal.max);
+        if (val < parseInt(minVal.value) + minGap) val = parseInt(minVal.value) + minGap;
+        this.value = val;
+        maxVal.value = val;
+        setArea();
+    });
+
+    if (clearBtn) {
+        clearBtn.addEventListener("click", function () {
+            // Reset to default Range
+            minVal.value = 35166305;
+            maxVal.value = 64736289;
+            minInput.value = 35166305;
+            maxInput.value = 64736289;
+            setArea();
         });
-
-        return recommendations;
     }
 
-    function getDestinationDescription(dest, season) {
-        var descriptions = {
-            'Dubai': 'Zamonaviy shaharlar, qumli cho\'llar va hashamatli mehmonxonalar',
-            'Istanbul': 'Tarixiy joylar, Bo\'g\'az ko\'rfazi va ajoyib oshxona',
-            'Bali': 'Tropik plyajlar, mevali bog\'lar va madaniy meros',
-            'Thailand': 'Jannat plyajlari, buddist ibodatxonalari va zamonaviy shaharlar',
-            'Malaysia': 'Tropik orollar, ekologik turizm va xilma-xil madaniyat',
-            'Singapore': 'Zamonaviy shahar, chiroyli parklar va xilma-xil oshxona',
-            'Maldives': 'Kristal suvlar, baliq tutish va hashamatli kurortlar',
-            'Egypt': 'Piramidalar, Suez kanali va qadimiy tarix',
-            'Türkiye': 'Mediterranean qirg\'oqlari, tarixiy joylar va ajoyib oshxona',
-            'UAE': 'Hashamatli shaharlar, qumli cho\'llar va yuqori darajadagi xizmatlar'
-        };
-        return descriptions[dest] || 'Ajoyib sayohat imkoniyati';
-    }
-
-    function displayRecommendations(recommendations, currency, exchangeRates) {
-        if (!aiResponse) return;
-
-        if (recommendations.length === 0) {
-            aiResponse.innerHTML = '<div style="color: #e74c3c;">Sizning kiritilgan ma\'lumotlar bo\'yicha tavsiyalar topilmadi. Iltimos, budjetni yoki yo\'nalishni o\'zgartiring.</div>';
-            return;
-        }
-
-        // Currency symbols
-        var currencySymbols = {
-            'usd': '$',
-            'sum': '',
-            'rub': '₽'
-        };
-        
-        // Currency names for display
-        var currencyNames = {
-            'usd': 'USD',
-            'sum': 'SO\'M',
-            'rub': 'RUB'
-        };
-        
-        var symbol = currencySymbols[currency] || '$';
-        var currencyName = currencyNames[currency] || 'USD';
-
-        var html = '<div style="margin-top: 20px;"><h4 style="color: #0a4d68; margin-bottom: 15px;">Tavsiya etilgan yo\'nalishlar:</h4>';
-
-        recommendations.forEach(function (rec) {
-            // Convert price from USD to selected currency
-            var displayPrice = rec.price;
-            if (currency === 'sum') {
-                displayPrice = Math.round(rec.price * exchangeRates.usd.sum);
-            } else if (currency === 'rub') {
-                displayPrice = Math.round(rec.price * exchangeRates.usd.rub);
-            }
-            
-            html += '<div style="background: var(--bg-secondary); padding: 15px; margin-bottom: 12px; border-radius: 8px; border-left: 4px solid var(--accent-primary);">';
-            html += '<div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 10px;">';
-            html += '<div style="flex: 1; min-width: 200px;">';
-            html += '<h5 style="margin: 0 0 8px 0; color: #0a4d68; font-size: 18px;">' + rec.destination + '</h5>';
-            html += '<p style="margin: 0 0 8px 0; color: #666; font-size: 14px;">' + rec.description + '</p>';
-            html += '<div style="display: flex; gap: 15px; font-size: 14px; color: #888;">';
-            html += '<span>⏱️ ' + rec.duration + '</span>';
-            html += '<span>💰 ' + symbol + displayPrice.toLocaleString('en-US') + ' ' + (currency === 'sum' ? currencyName : '') + '</span>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-            html += '</div>';
-        });
-
-        html += '</div>';
-        aiResponse.innerHTML = html;
-        aiResponse.style.color = '#333';
-    }
 })();
+
 
 // Password Toggle Functionality
 function togglePasswordVisibility(inputId, button) {
     var input = document.getElementById(inputId);
     if (!input) return;
-    
+
     var eyeOpen = button.querySelector('.eye-open');
     var eyeClosed = button.querySelector('.eye-closed');
-    
+
     if (input.type === 'password') {
         input.type = 'text';
         if (eyeOpen) eyeOpen.style.display = 'none';
@@ -3574,7 +3980,7 @@ async function handleSocialLoginSuccess(userData, provider) {
     console.log('handleSocialLoginSuccess called with provider:', provider, 'userData:', userData);
     try {
         var response;
-        
+
         if (provider === 'google') {
             // For Google, send the credential token to backend
             if (userData.credential) {
@@ -3591,33 +3997,33 @@ async function handleSocialLoginSuccess(userData, provider) {
             console.error('Unknown provider:', provider);
             throw new Error('Unknown provider');
         }
-        
+
         if (response && response.success) {
             console.log('Login successful, updating UI...');
             // Store token and user data
             setAuthToken(response.token);
             localStorage.setItem('ketmon_user', JSON.stringify(response.user));
-            
+
             // Update header
             if (typeof updateHeaderAuth === 'function') {
                 updateHeaderAuth();
             }
-            
+
             // Close login modal
             var loginModal = document.getElementById('loginModal');
             if (loginModal) {
                 loginModal.classList.remove('open');
                 document.body.style.overflow = '';
             }
-            
+
             // Close user account dropdown
             if (typeof closeUserAccountDropdown === 'function') {
                 closeUserAccountDropdown();
             }
-            
+
             // Show success message
             alert('Muvaffaqiyatli kirdingiz! ' + (response.user.name || response.user.email));
-            
+
             // Redirect to profile or refresh page
             if (window.location.pathname.includes('profile.html')) {
                 window.location.reload();
@@ -3628,14 +4034,14 @@ async function handleSocialLoginSuccess(userData, provider) {
     } catch (error) {
         console.error('Error handling social login:', error);
         var errorMsg = error.message || 'Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.';
-        
+
         // Provide more specific error messages
         if (error.message && error.message.includes('400')) {
             errorMsg = '400 xatolik: Google Client ID noto\'g\'ri yoki backend sozlamalari xato.\n\nIltimos, tekshiring:\n1. Google Client ID to\'g\'ri sozlanganligini\n2. Backend server ishlamoqda va GOOGLE_CLIENT_ID sozlanganligini\n3. Authorized JavaScript origins ga sahifangiz URL qo\'shilganligini';
         } else if (error.message && (error.message.includes('NetworkError') || error.message.includes('Failed to fetch'))) {
             errorMsg = 'Backend serverga ulanib bo\'lmadi.\n\nIltimos, tekshiring:\n1. Backend server ishlamoqda (http://localhost:3000)\n2. API_BASE_URL to\'g\'ri sozlanganligini';
         }
-        
+
         alert(errorMsg);
     }
 }
@@ -3643,40 +4049,40 @@ async function handleSocialLoginSuccess(userData, provider) {
 // Google Sign-In Function
 function loginWithGoogle() {
     console.log('Google login function called');
-    
+
     // Check if Google Identity Services is loaded
     if (typeof google === 'undefined' || !google.accounts) {
         console.error('Google Identity Services not loaded');
         alert('Google Identity Services yuklanmagan. Iltimos, sahifani yangilang va qayta urinib ko\'ring.');
         return;
     }
-    
+
     console.log('Google Identity Services loaded, Client ID:', GOOGLE_CLIENT_ID);
-    
+
     // Check if client ID is configured
     if (GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID' || !GOOGLE_CLIENT_ID) {
         alert('Google Client ID sozlanmagan. Iltimos, script.js faylida GOOGLE_CLIENT_ID ni o\'rnating.\n\nGoogle Cloud Console dan Client ID olish:\n1. https://console.cloud.google.com ga kiring\n2. API & Services > Credentials\n3. Create Credentials > OAuth client ID\n4. Web application tanlang va Client ID ni oling\n\nMUHIM: Client ID (123456789-xxxxx.apps.googleusercontent.com) ishlatish kerak, Client Secret (GOCSPX-...) emas!');
         return;
     }
-    
+
     // Validate Client ID format (should end with .apps.googleusercontent.com)
     // If it looks like a Client Secret (starts with GOCSPX-), show error
     if (GOOGLE_CLIENT_ID.startsWith('GOCSPX-')) {
         alert('XATO: Siz Client Secret ishlatyapsiz, Client ID emas!\n\nClient ID shunday ko\'rinadi: 123456789-xxxxx.apps.googleusercontent.com\nClient Secret esa shunday: GOCSPX-xxxxx\n\nIltimos, Google Cloud Console dan to\'g\'ri Client ID ni oling va qo\'ying.');
         return;
     }
-    
+
     // Warn if Client ID doesn't look like a valid format
     if (!GOOGLE_CLIENT_ID.includes('.apps.googleusercontent.com')) {
         console.warn('Google Client ID format noto\'g\'ri ko\'rinadi. To\'g\'ri format: 123456789-xxxxx.apps.googleusercontent.com');
     }
-    
+
     // Use Google Sign-In with proper ID token flow
     try {
         // Initialize Google Identity Services with callback
         google.accounts.id.initialize({
             client_id: GOOGLE_CLIENT_ID,
-            callback: function(response) {
+            callback: function (response) {
                 console.log('Google callback received:', response);
                 // Handle the credential (ID token) response
                 if (response.credential) {
@@ -3691,15 +4097,15 @@ function loginWithGoogle() {
             auto_select: false,
             cancel_on_tap_outside: true
         });
-        
+
         // Find or create button container in the login modal
         var loginModal = document.getElementById('loginModal');
         var buttonContainer = null;
-        
+
         if (loginModal) {
             // Check if container already exists
             buttonContainer = loginModal.querySelector('#google-signin-button-container');
-            
+
             if (!buttonContainer) {
                 // Find the existing Google button
                 var existingGoogleBtn = loginModal.querySelector('.google-btn');
@@ -3709,7 +4115,7 @@ function loginWithGoogle() {
                     buttonContainer.id = 'google-signin-button-container';
                     buttonContainer.style.display = 'inline-block';
                     buttonContainer.style.verticalAlign = 'middle';
-                    
+
                     // Insert before or replace the existing button
                     var parent = existingGoogleBtn.parentNode;
                     if (parent) {
@@ -3729,7 +4135,7 @@ function loginWithGoogle() {
                 }
             }
         }
-        
+
         // If no modal or container found, create a temporary one
         if (!buttonContainer) {
             buttonContainer = document.createElement('div');
@@ -3739,7 +4145,7 @@ function loginWithGoogle() {
             buttonContainer.style.opacity = '0';
             document.body.appendChild(buttonContainer);
         }
-        
+
         // Render Google Sign-In button
         google.accounts.id.renderButton(
             buttonContainer,
@@ -3753,10 +4159,10 @@ function loginWithGoogle() {
                 width: '300'
             }
         );
-        
+
         // If it's a hidden temporary container, try to trigger it
         if (buttonContainer.style.position === 'fixed') {
-            setTimeout(function() {
+            setTimeout(function () {
                 var googleButton = buttonContainer.querySelector('div[role="button"]');
                 if (googleButton) {
                     // Try to trigger the button
@@ -3766,9 +4172,9 @@ function loginWithGoogle() {
                         // If click doesn't work, show One Tap as fallback
                         google.accounts.id.prompt();
                     }
-                    
+
                     // Clean up after delay
-                    setTimeout(function() {
+                    setTimeout(function () {
                         if (buttonContainer.parentNode && buttonContainer.style.position === 'fixed') {
                             document.body.removeChild(buttonContainer);
                         }
@@ -3782,7 +4188,7 @@ function loginWithGoogle() {
             // For visible buttons, also try One Tap as a convenience
             google.accounts.id.prompt();
         }
-        
+
     } catch (error) {
         console.error('Error initializing Google Sign-In:', error);
         alert('Google kirishni boshlashda xatolik yuz berdi: ' + error.message + '\n\nIltimos, sahifani yangilang va qayta urinib ko\'ring.');
@@ -3834,25 +4240,25 @@ window.openResetPasswordModal = openResetPasswordModal;
 window.closeResetPasswordModal = closeResetPasswordModal;
 
 // Forgot Password Form Handler
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     var forgotPasswordForm = document.getElementById('forgotPasswordForm');
     var forgotPasswordModal = document.getElementById('forgotPasswordModal');
     var forgotPasswordModalClose = document.getElementById('forgotPasswordModalClose');
     var resetPasswordForm = document.getElementById('resetPasswordForm');
     var resetPasswordModal = document.getElementById('resetPasswordModal');
     var resetPasswordModalClose = document.getElementById('resetPasswordModalClose');
-    
+
     // Forgot Password Form Submission - Backend API
     if (forgotPasswordForm) {
-        forgotPasswordForm.addEventListener('submit', async function(e) {
+        forgotPasswordForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             var email = document.getElementById('forgotPasswordEmail').value.trim().toLowerCase();
-            
+
             if (!email) {
                 alert('Iltimos, email manzilingizni kiriting.');
                 return;
             }
-            
+
             try {
                 var response = await passwordAPI.forgotPassword(email);
                 alert(response.message || 'Parolni tiklash haqida xabar emailga yuborildi');
@@ -3862,51 +4268,51 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Close Forgot Password Modal
     if (forgotPasswordModalClose) {
         forgotPasswordModalClose.addEventListener('click', closeForgotPasswordModal);
     }
-    
+
     if (forgotPasswordModal) {
-        forgotPasswordModal.addEventListener('click', function(e) {
+        forgotPasswordModal.addEventListener('click', function (e) {
             if (e.target === forgotPasswordModal) {
                 closeForgotPasswordModal();
             }
         });
     }
-    
+
     // Reset Password Form Submission - Backend API
     if (resetPasswordForm) {
-        resetPasswordForm.addEventListener('submit', async function(e) {
+        resetPasswordForm.addEventListener('submit', async function (e) {
             e.preventDefault();
             var newPassword = document.getElementById('resetPasswordNew').value;
             var confirmPassword = document.getElementById('resetPasswordConfirm').value;
-            var token = new URLSearchParams(window.location.search).get('token') || 
-                       document.getElementById('resetPasswordToken')?.value || '';
-            
+            var token = new URLSearchParams(window.location.search).get('token') ||
+                document.getElementById('resetPasswordToken')?.value || '';
+
             if (newPassword.length < 6) {
                 alert('Parol kamida 6 ta belgidan iborat bo\'lishi kerak.');
                 return;
             }
-            
+
             if (newPassword !== confirmPassword) {
                 alert('Parollar mos kelmaydi. Iltimos, qayta kiriting.');
                 return;
             }
-            
+
             if (!token) {
                 alert('Parolni tiklash tokeni topilmadi. Iltimos, emaildagi havolani ishlating.');
                 return;
             }
-            
+
             try {
                 var response = await passwordAPI.resetPassword(token, newPassword);
                 alert(response.message || 'Parol muvaffaqiyatli yangilandi!');
                 closeResetPasswordModal();
-                
+
                 // Optionally redirect to login
-                setTimeout(function() {
+                setTimeout(function () {
                     var loginModal = document.getElementById('loginModal');
                     if (loginModal) {
                         loginModal.classList.add('open');
@@ -3918,14 +4324,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     // Close Reset Password Modal
     if (resetPasswordModalClose) {
         resetPasswordModalClose.addEventListener('click', closeResetPasswordModal);
     }
-    
+
     if (resetPasswordModal) {
-        resetPasswordModal.addEventListener('click', function(e) {
+        resetPasswordModal.addEventListener('click', function (e) {
             if (e.target === resetPasswordModal) {
                 closeResetPasswordModal();
             }
@@ -3934,11 +4340,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Voice Search Functionality
-(function() {
+(function () {
     const voiceSearchBtn = document.getElementById('voiceSearchBtn');
     const voiceSearchInput = document.getElementById('voiceSearchInput');
     const voiceStatus = document.getElementById('voiceStatus');
-    
+
     let recognition = null;
     let isRecording = false;
 
@@ -3946,12 +4352,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         recognition = new SpeechRecognition();
-        
+
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.lang = 'uz-UZ'; // Uzbek language, can be changed to 'en-US' or other languages
 
-        recognition.onstart = function() {
+        recognition.onstart = function () {
             isRecording = true;
             voiceSearchBtn.classList.add('recording');
             voiceStatus.textContent = 'Listening...';
@@ -3959,31 +4365,31 @@ document.addEventListener('DOMContentLoaded', function() {
             voiceStatus.style.display = 'block';
         };
 
-        recognition.onresult = function(event) {
+        recognition.onresult = function (event) {
             const transcript = event.results[0][0].transcript;
             voiceSearchInput.value = transcript;
             voiceStatus.textContent = 'Voice input received';
             voiceStatus.classList.remove('recording');
-            
+
             // Trigger search if needed
             setTimeout(() => {
                 voiceStatus.style.display = 'none';
             }, 2000);
         };
 
-        recognition.onerror = function(event) {
+        recognition.onerror = function (event) {
             console.error('Speech recognition error:', event.error);
             voiceStatus.textContent = 'Error: ' + event.error;
             voiceStatus.classList.remove('recording');
             voiceSearchBtn.classList.remove('recording');
             isRecording = false;
-            
+
             setTimeout(() => {
                 voiceStatus.style.display = 'none';
             }, 3000);
         };
 
-        recognition.onend = function() {
+        recognition.onend = function () {
             isRecording = false;
             voiceSearchBtn.classList.remove('recording');
             if (voiceStatus.textContent === 'Listening...') {
@@ -3996,7 +4402,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         if (voiceSearchBtn) {
-            voiceSearchBtn.addEventListener('click', function() {
+            voiceSearchBtn.addEventListener('click', function () {
                 if (!isRecording) {
                     try {
                         recognition.start();
@@ -4019,7 +4425,7 @@ document.addEventListener('DOMContentLoaded', function() {
             voiceSearchBtn.style.opacity = '0.5';
             voiceSearchBtn.style.cursor = 'not-allowed';
             voiceSearchBtn.title = 'Voice search not supported in this browser';
-            voiceSearchBtn.addEventListener('click', function() {
+            voiceSearchBtn.addEventListener('click', function () {
                 voiceStatus.textContent = 'Voice search is not supported in your browser';
                 voiceStatus.style.display = 'block';
                 setTimeout(() => {
@@ -4032,14 +4438,14 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 
 // Detailed Search Section Toggle
-(function() {
+(function () {
     const detailedSearchToggle = document.getElementById('detailedSearchToggle');
     const detailedSearchSection = document.getElementById('detailedSearchSection');
-    
+
     if (detailedSearchToggle && detailedSearchSection) {
-        detailedSearchToggle.addEventListener('click', function() {
+        detailedSearchToggle.addEventListener('click', function () {
             const isVisible = detailedSearchSection.style.display === 'block';
-            
+
             if (isVisible) {
                 detailedSearchSection.style.display = 'none';
                 detailedSearchToggle.classList.remove('active');
@@ -4053,16 +4459,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle search button click
     const detailedSearchBtn = document.getElementById('detailedSearchBtn');
     if (detailedSearchBtn) {
-        detailedSearchBtn.addEventListener('click', function() {
+        detailedSearchBtn.addEventListener('click', function () {
             const destination = document.getElementById('voiceSearchInput').value;
             const date = document.getElementById('searchDate').value;
             const duration = document.getElementById('searchDuration').value;
             const agency = document.getElementById('searchAgency').value;
             const guests = document.getElementById('searchGuests').value;
-            
+
             // Perform destination search first
             performDestinationSearch(destination || '');
-            
+
             // Additional filtering by agency if specified
             if (agency && agency !== 'all') {
                 const destinationCards = document.querySelectorAll('.destination-card');
@@ -4076,7 +4482,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
             }
-            
+
             // Scroll to destinations section
             const destinationsSection = document.getElementById('destinations');
             if (destinationsSection) {
@@ -4084,7 +4490,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     destinationsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 }, 100);
             }
-            
+
             console.log('Search parameters:', {
                 destination,
                 date,
@@ -4099,7 +4505,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Advanced auto-correction with multiple algorithms
 function autoCorrectSearch(searchTerm) {
     const originalTerm = searchTerm.toLowerCase().trim();
-    
+
     // Comprehensive typo dictionary with all variations
     const corrections = {
         // Rome/Roma variations (Rim, Roma, Rome, Italy)
@@ -4108,7 +4514,7 @@ function autoCorrectSearch(searchTerm) {
         'rim': 'roma', 'rimm': 'roma', 'rym': 'roma', 'romy': 'roma',
         'romaa': 'roma', 'romma': 'roma', 'rommm': 'roma',
         'italiya': 'italiya', 'italy': 'italiya', 'itali': 'italiya',
-        
+
         // Paris variations (Parij, Paris, France)
         'pariss': 'paris', 'parijs': 'paris', 'parisss': 'paris',
         'pari': 'paris', 'pariz': 'paris', 'parise': 'paris',
@@ -4116,60 +4522,60 @@ function autoCorrectSearch(searchTerm) {
         'parij': 'paris', 'pary': 'paris', 'pariss': 'paris',
         'fransiya': 'paris', 'france': 'paris', 'frans': 'paris',
         'fransiya': 'paris', 'frans': 'paris',
-        
+
         // Dubai variations (Dubay, Dubai, UAE, BAA)
         'dubayy': 'dubai', 'dubaai': 'dubai', 'dubay': 'dubai',
         'dubaii': 'dubai', 'dubay': 'dubai', 'dubey': 'dubai',
         'dubay': 'dubai', 'dubai': 'dubai', 'dubayy': 'dubai',
         'baa': 'dubai', 'uae': 'dubai', 'emirates': 'dubai',
-        
+
         // Tokyo variations (Tokio, Tokyo, Japan)
         'tokyoo': 'tokyo', 'tokyyo': 'tokyo', 'tokio': 'tokyo',
         'toky': 'tokyo', 'tokyo': 'tokyo', 'tokyyo': 'tokyo',
         'tokyoo': 'tokyo', 'tokyio': 'tokyo', 'tokyoo': 'tokyo',
         'yaponiya': 'tokyo', 'japan': 'tokyo', 'yapon': 'tokyo',
-        
+
         // Istanbul variations (Istanbul, Turkey)
         'istambul': 'istanbul', 'istanbull': 'istanbul',
         'istanbul': 'istanbul', 'istambul': 'istanbul',
         'istanbul': 'istanbul', 'istambul': 'istanbul',
         'istanbol': 'istanbul', 'istambul': 'istanbul',
         'turkiya': 'istanbul', 'turkey': 'istanbul', 'turk': 'istanbul',
-        
+
         // Bangkok variations (Bangkok, Thailand)
         'bangok': 'bangkok', 'bangkokk': 'bangkok',
         'bangkok': 'bangkok', 'bangok': 'bangkok',
         'bangkok': 'bangkok', 'bangok': 'bangkok',
         'tailand': 'bangkok', 'thailand': 'bangkok', 'tayland': 'bangkok',
-        
+
         // London variations (London, UK, Britain)
         'londoon': 'london', 'londdon': 'london',
         'london': 'london', 'londoon': 'london',
         'londan': 'london', 'londin': 'london', 'londn': 'london',
         'uk': 'london', 'britain': 'london', 'britaniya': 'london',
-        
+
         // Baku variations (Boku, Baku, Azerbaijan)
         'bakku': 'baku', 'bakoo': 'baku', 'boku': 'baku',
         'baku': 'baku', 'bakku': 'baku', 'bakoo': 'baku',
         'ozarbayjon': 'baku', 'azerbaijan': 'baku', 'azerbaycan': 'baku',
-        
+
         // Switzerland variations (Shveysariya, Switzerland)
         'switzerland': 'switzerland', 'switz': 'switzerland',
         'shveysariya': 'switzerland', 'shveysariya': 'switzerland',
         'swiss': 'switzerland', 'shveysariya': 'switzerland'
     };
-    
+
     // Direct dictionary lookup
     if (corrections[originalTerm]) {
         return corrections[originalTerm];
     }
-    
+
     // Try normalized version
     const normalized = normalizeString(originalTerm);
     if (normalized !== originalTerm && corrections[normalized]) {
         return corrections[normalized];
     }
-    
+
     return originalTerm;
 }
 
@@ -4178,7 +4584,7 @@ function levenshteinDistance(str1, str2) {
     const matrix = [];
     const len1 = str1.length;
     const len2 = str2.length;
-    
+
     // Common keyboard layout for character substitution
     const keyboardNeighbors = {
         'q': ['w'], 'w': ['q', 'e'], 'e': ['w', 'r'], 'r': ['e', 't'],
@@ -4190,20 +4596,20 @@ function levenshteinDistance(str1, str2) {
         'z': ['x'], 'x': ['z', 'c'], 'c': ['x', 'v'], 'v': ['c', 'b'],
         'b': ['v', 'n'], 'n': ['b', 'm'], 'm': ['n']
     };
-    
+
     function isKeyboardNeighbor(char1, char2) {
-        return keyboardNeighbors[char1]?.includes(char2) || 
-               keyboardNeighbors[char2]?.includes(char1);
+        return keyboardNeighbors[char1]?.includes(char2) ||
+            keyboardNeighbors[char2]?.includes(char1);
     }
-    
+
     for (let i = 0; i <= len2; i++) {
         matrix[i] = [i];
     }
-    
+
     for (let j = 0; j <= len1; j++) {
         matrix[0][j] = j;
     }
-    
+
     for (let i = 1; i <= len2; i++) {
         for (let j = 1; j <= len1; j++) {
             if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
@@ -4211,10 +4617,10 @@ function levenshteinDistance(str1, str2) {
             } else {
                 // Check for keyboard neighbor (lower cost)
                 const substitutionCost = isKeyboardNeighbor(
-                    str2.charAt(i - 1), 
+                    str2.charAt(i - 1),
                     str1.charAt(j - 1)
                 ) ? 0.5 : 1;
-                
+
                 matrix[i][j] = Math.min(
                     matrix[i - 1][j - 1] + substitutionCost,
                     matrix[i][j - 1] + 1,
@@ -4223,7 +4629,7 @@ function levenshteinDistance(str1, str2) {
             }
         }
     }
-    
+
     return matrix[len2][len1];
 }
 
@@ -4231,21 +4637,21 @@ function levenshteinDistance(str1, str2) {
 function jaroWinklerSimilarity(str1, str2) {
     const s1 = str1.toLowerCase();
     const s2 = str2.toLowerCase();
-    
+
     if (s1 === s2) return 1.0;
-    
+
     const matchWindow = Math.floor(Math.max(s1.length, s2.length) / 2) - 1;
     const s1Matches = new Array(s1.length).fill(false);
     const s2Matches = new Array(s2.length).fill(false);
-    
+
     let matches = 0;
     let transpositions = 0;
-    
+
     // Find matches
     for (let i = 0; i < s1.length; i++) {
         const start = Math.max(0, i - matchWindow);
         const end = Math.min(i + matchWindow + 1, s2.length);
-        
+
         for (let j = start; j < end; j++) {
             if (s2Matches[j] || s1[i] !== s2[j]) continue;
             s1Matches[i] = true;
@@ -4254,9 +4660,9 @@ function jaroWinklerSimilarity(str1, str2) {
             break;
         }
     }
-    
+
     if (matches === 0) return 0.0;
-    
+
     // Find transpositions
     let k = 0;
     for (let i = 0; i < s1.length; i++) {
@@ -4265,20 +4671,20 @@ function jaroWinklerSimilarity(str1, str2) {
         if (s1[i] !== s2[k]) transpositions++;
         k++;
     }
-    
+
     const jaro = (
         matches / s1.length +
         matches / s2.length +
         (matches - transpositions / 2) / matches
     ) / 3.0;
-    
+
     // Winkler modification
     let prefix = 0;
     for (let i = 0; i < Math.min(s1.length, s2.length, 4); i++) {
         if (s1[i] === s2[i]) prefix++;
         else break;
     }
-    
+
     return jaro + (0.1 * prefix * (1 - jaro));
 }
 
@@ -4293,7 +4699,7 @@ function fixTranspositions(str) {
         'a': ['e', 'ä', 'å'],
         'e': ['a', 'ä', 'å']
     };
-    
+
     // Common transposition patterns
     const transpositionPatterns = [
         // Double letter corrections
@@ -4308,9 +4714,9 @@ function fixTranspositions(str) {
         { pattern: /^dubayy/, replace: 'dubai' },
         { pattern: /^tokyoo/, replace: 'tokyo' }
     ];
-    
+
     let fixed = str;
-    
+
     // Apply transposition patterns
     for (const { pattern, replace } of transpositionPatterns) {
         if (typeof replace === 'function') {
@@ -4319,7 +4725,7 @@ function fixTranspositions(str) {
             fixed = fixed.replace(pattern, replace);
         }
     }
-    
+
     return fixed;
 }
 
@@ -4343,31 +4749,31 @@ function normalizeString(str) {
 // Advanced fuzzy matching with multiple algorithms
 function findBestMatch(searchTerm, possibleMatches) {
     if (!searchTerm || searchTerm.length < 2) return null;
-    
+
     const normalizedTerm = normalizeString(searchTerm);
     let bestMatch = null;
     let bestScore = 0;
     const minScore = 0.6; // Minimum similarity threshold
-    
+
     for (const match of possibleMatches) {
         const normalizedMatch = normalizeString(match);
-        
+
         // Exact match
         if (normalizedTerm === normalizedMatch) {
             return match;
         }
-        
+
         // Calculate multiple similarity scores
         const levenshteinDist = levenshteinDistance(normalizedTerm, normalizedMatch);
         const maxLen = Math.max(normalizedTerm.length, normalizedMatch.length);
         const levenshteinScore = 1 - (levenshteinDist / maxLen);
-        
+
         const jaroWinklerScore = jaroWinklerSimilarity(normalizedTerm, normalizedMatch);
-        
+
         // Check if one string contains the other
-        const containsScore = normalizedMatch.includes(normalizedTerm) || 
-                             normalizedTerm.includes(normalizedMatch) ? 0.8 : 0;
-        
+        const containsScore = normalizedMatch.includes(normalizedTerm) ||
+            normalizedTerm.includes(normalizedMatch) ? 0.8 : 0;
+
         // Check for common prefix
         let prefixLength = 0;
         const minLen = Math.min(normalizedTerm.length, normalizedMatch.length);
@@ -4379,7 +4785,7 @@ function findBestMatch(searchTerm, possibleMatches) {
             }
         }
         const prefixScore = prefixLength / Math.max(normalizedTerm.length, normalizedMatch.length);
-        
+
         // Weighted combination of scores
         const combinedScore = (
             levenshteinScore * 0.3 +
@@ -4387,17 +4793,17 @@ function findBestMatch(searchTerm, possibleMatches) {
             containsScore * 0.2 +
             prefixScore * 0.1
         );
-        
+
         // Prefer shorter edit distance
         const lengthPenalty = Math.abs(normalizedTerm.length - normalizedMatch.length) > 3 ? 0.1 : 1;
         const finalScore = combinedScore * lengthPenalty;
-        
+
         if (finalScore > bestScore && finalScore >= minScore) {
             bestScore = finalScore;
             bestMatch = match;
         }
     }
-    
+
     return bestMatch;
 }
 
@@ -4405,7 +4811,7 @@ function findBestMatch(searchTerm, possibleMatches) {
 function performDestinationSearch(searchQuery) {
     const destinationCards = document.querySelectorAll('.destination-card');
     let searchTerm = searchQuery.toLowerCase().trim();
-    
+
     // If search is empty, show all cards
     if (searchTerm === '') {
         destinationCards.forEach(card => {
@@ -4418,13 +4824,13 @@ function performDestinationSearch(searchQuery) {
         }
         return;
     }
-    
+
     // Apply advanced auto-correction
     let correctedTerm = autoCorrectSearch(searchTerm);
-    
+
     // Apply transposition fixes
     correctedTerm = fixTranspositions(correctedTerm);
-    
+
     // If correction was made, update the input field
     if (correctedTerm !== searchTerm) {
         const voiceSearchInput = document.getElementById('voiceSearchInput');
@@ -4433,7 +4839,7 @@ function performDestinationSearch(searchQuery) {
         }
         searchTerm = correctedTerm.toLowerCase();
     }
-    
+
     // Language mapping for common destinations - organized by destination
     const destinationMappings = {
         'paris': {
@@ -4473,16 +4879,16 @@ function performDestinationSearch(searchQuery) {
             matchText: ['shveysariya', 'switzerland']
         }
     };
-    
+
     // Find which destination group the search term belongs to
     // Priority: exact match > starts with > contains
     let matchedDestination = null;
     let matchType = null; // 'exact', 'starts', 'contains'
     let matchedKeywords = []; // Track which keywords matched
-    
+
     // First, check for exact match (highest priority) - case-insensitive
     // Special handling for "italiya" to ensure it only matches "roma" destination
-    if (normalizeString(searchTerm) === 'italiya' || normalizeString(searchTerm) === 'italy' || 
+    if (normalizeString(searchTerm) === 'italiya' || normalizeString(searchTerm) === 'italy' ||
         normalizeString(searchTerm) === 'itali') {
         matchedDestination = 'roma';
         matchType = 'exact';
@@ -4490,8 +4896,8 @@ function performDestinationSearch(searchQuery) {
     } else {
         for (const [destKey, destData] of Object.entries(destinationMappings)) {
             const exactMatch = destData.keywords.find(keyword => {
-                return keyword.toLowerCase() === searchTerm || 
-                       normalizeString(keyword) === normalizeString(searchTerm);
+                return keyword.toLowerCase() === searchTerm ||
+                    normalizeString(keyword) === normalizeString(searchTerm);
             });
             if (exactMatch) {
                 matchedDestination = destKey;
@@ -4501,7 +4907,7 @@ function performDestinationSearch(searchQuery) {
             }
         }
     }
-    
+
     // If no exact match, check for "starts with" match (but only if search term is at least 3 chars)
     if (!matchedDestination && searchTerm.length >= 3) {
         for (const [destKey, destData] of Object.entries(destinationMappings)) {
@@ -4515,7 +4921,7 @@ function performDestinationSearch(searchQuery) {
             }
         }
     }
-    
+
     // If still no match, check for contains (but be very strict - minimum 4 chars for substring matching)
     // AND ensure the search term is not a substring of unrelated words
     if (!matchedDestination && searchTerm.length >= 4) {
@@ -4531,7 +4937,7 @@ function performDestinationSearch(searchQuery) {
                 break;
             }
         }
-        
+
         // If no exact keyword match, check for contains (but be very strict)
         if (!matchedDestination) {
             for (const [destKey, destData] of Object.entries(destinationMappings)) {
@@ -4540,7 +4946,7 @@ function performDestinationSearch(searchQuery) {
                 const containsMatch = destData.keywords.find(keyword => {
                     const normalizedKeyword = normalizeString(keyword);
                     const normalizedSearch = normalizeString(searchTerm);
-                    
+
                     // Only match if the keyword contains the full search term
                     // AND the search term is at least 4 characters
                     // AND it's not a common substring that appears in multiple destinations
@@ -4567,11 +4973,11 @@ function performDestinationSearch(searchQuery) {
                                 return false;
                             });
                         });
-                        
+
                         // Only match if it's unique to this destination OR if it's an exact match
                         // OR if the search term is long enough (>= 5 chars) to avoid substring issues
-                        return (!appearsInOtherDestinations || normalizedKeyword === normalizedSearch) && 
-                               (normalizedSearch.length >= 5 || normalizedKeyword === normalizedSearch);
+                        return (!appearsInOtherDestinations || normalizedKeyword === normalizedSearch) &&
+                            (normalizedSearch.length >= 5 || normalizedKeyword === normalizedSearch);
                     }
                     return false;
                 });
@@ -4584,7 +4990,7 @@ function performDestinationSearch(searchQuery) {
             }
         }
     }
-    
+
     // If no match found, try fuzzy matching (but be more strict)
     if (!matchedDestination) {
         const allKeywords = Object.values(destinationMappings).flatMap(d => d.keywords);
@@ -4593,7 +4999,7 @@ function performDestinationSearch(searchQuery) {
             // Verify the match is good enough and not a false positive
             const normalizedSearch = normalizeString(searchTerm);
             const normalizedMatch = normalizeString(bestMatch);
-            
+
             // Only accept fuzzy match if similarity is high and it's not ambiguous
             const similarity = jaroWinklerSimilarity(normalizedSearch, normalizedMatch);
             if (similarity >= 0.75) { // Higher threshold for fuzzy matching
@@ -4614,21 +5020,21 @@ function performDestinationSearch(searchQuery) {
             }
         }
     }
-    
+
     let hasMatches = false;
-    
+
     destinationCards.forEach(card => {
         const titleElement = card.querySelector('.destination-title');
         const descElement = card.querySelector('.destination-desc');
-        
+
         if (!titleElement) return;
-        
+
         const title = titleElement.textContent.toLowerCase();
         const description = descElement ? descElement.textContent.toLowerCase() : '';
         const searchText = title + ' ' + description;
-        
+
         let isMatch = false;
-        
+
         // If we found a matched destination group, only show cards that belong to it
         if (matchedDestination) {
             const destData = destinationMappings[matchedDestination];
@@ -4638,15 +5044,15 @@ function performDestinationSearch(searchQuery) {
                 const normalizedMatchText = normalizeString(matchText);
                 const normalizedTitle = normalizeString(title);
                 const normalizedSearchText = normalizeString(searchText);
-                
+
                 // Exact match in title (highest priority)
-                if (normalizedTitle === normalizedMatchText || 
+                if (normalizedTitle === normalizedMatchText ||
                     normalizedTitle.includes(' ' + normalizedMatchText + ',') ||
                     normalizedTitle.includes(', ' + normalizedMatchText) ||
                     normalizedTitle.endsWith(' ' + normalizedMatchText)) {
                     return true;
                 }
-                
+
                 // Check if match text appears as a word in title or description (with word boundaries)
                 // This prevents "italiya" from matching "fransiya"
                 const escapedMatchText = normalizedMatchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -4654,7 +5060,7 @@ function performDestinationSearch(searchQuery) {
                 if (wordBoundaryRegex.test(normalizedTitle) || wordBoundaryRegex.test(normalizedSearchText)) {
                     return true;
                 }
-                
+
                 // Fallback: simple contains check (but only if match text is significant and unique)
                 // Only use this if the match text is long enough and not a substring of other destinations
                 // Special case: "italiya" should never match "fransiya"
@@ -4670,32 +5076,32 @@ function performDestinationSearch(searchQuery) {
                     }
                     return false; // Don't match if it's not Italy-related
                 }
-                
+
                 if (normalizedMatchText.length >= 5) {
                     // Check if this match text could match other destinations (avoid false positives)
                     const couldMatchOthers = Object.entries(destinationMappings).some(([otherKey, otherData]) => {
                         if (otherKey === matchedDestination) return false;
                         return otherData.matchText.some(otherMatchText => {
                             const normalizedOther = normalizeString(otherMatchText);
-                            return normalizedOther.includes(normalizedMatchText) && 
-                                   normalizedOther !== normalizedMatchText;
+                            return normalizedOther.includes(normalizedMatchText) &&
+                                normalizedOther !== normalizedMatchText;
                         });
                     });
-                    
+
                     // Only use contains if it won't cause false positives
-                    if (!couldMatchOthers && 
+                    if (!couldMatchOthers &&
                         (normalizedTitle.includes(normalizedMatchText) || normalizedSearchText.includes(normalizedMatchText))) {
                         return true;
                     }
                 }
-                
+
                 return false;
             });
         } else {
             // If no destination group matched, do a simple text search
             isMatch = searchText.includes(searchTerm);
         }
-        
+
         // Show or hide card
         if (isMatch) {
             card.style.display = '';
@@ -4704,24 +5110,24 @@ function performDestinationSearch(searchQuery) {
             card.style.display = 'none';
         }
     });
-    
+
     // Scroll to destinations section
     const destinationsSection = document.getElementById('destinations');
     if (destinationsSection && searchTerm) {
         const header = document.querySelector('.main-header') || document.querySelector('.navigation-section');
         const headerHeight = header ? header.offsetHeight : 80;
-        
+
         // Smooth scroll to destinations
         setTimeout(() => {
             destinationsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 100);
     }
-    
+
     // Show message if no results
     if (searchTerm && !hasMatches) {
         const destinationGrid = document.querySelector('.destination-grid');
         let noResultsMsg = destinationGrid.querySelector('.no-results-message');
-        
+
         if (!noResultsMsg) {
             noResultsMsg = document.createElement('div');
             noResultsMsg.className = 'no-results-message';
@@ -4739,14 +5145,14 @@ function performDestinationSearch(searchQuery) {
 }
 
 // Search Icon Button Handler
-(function() {
+(function () {
     const searchIconBtn = document.getElementById('searchIconBtn');
     const voiceSearchInput = document.getElementById('voiceSearchInput');
-    
+
     if (searchIconBtn && voiceSearchInput) {
-        searchIconBtn.addEventListener('click', function() {
+        searchIconBtn.addEventListener('click', function () {
             const searchQuery = voiceSearchInput.value.trim();
-            
+
             if (searchQuery) {
                 // Perform search action
                 console.log('Searching for:', searchQuery);
@@ -4758,10 +5164,10 @@ function performDestinationSearch(searchQuery) {
                 voiceSearchInput.focus();
             }
         });
-        
+
         // Also trigger search on Enter key
         if (voiceSearchInput) {
-            voiceSearchInput.addEventListener('keypress', function(e) {
+            voiceSearchInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     searchIconBtn.click();
                 }
@@ -4771,23 +5177,23 @@ function performDestinationSearch(searchQuery) {
 })();
 
 // Navigation Active State Management
-(function() {
+(function () {
     const navLinks = document.querySelectorAll('.desktop-nav a');
     const sections = document.querySelectorAll('section[id]');
-    
+
     function updateActiveNav() {
         let current = '';
         const scrollY = window.pageYOffset;
-        
+
         sections.forEach(section => {
             const sectionTop = section.offsetTop - 100;
             const sectionHeight = section.offsetHeight;
-            
+
             if (scrollY >= sectionTop && scrollY < sectionTop + sectionHeight) {
                 current = section.getAttribute('id');
             }
         });
-        
+
         navLinks.forEach(link => {
             link.classList.remove('active');
             const href = link.getAttribute('href');
@@ -4796,17 +5202,17 @@ function performDestinationSearch(searchQuery) {
             }
         });
     }
-    
+
     // Update on scroll
     window.addEventListener('scroll', updateActiveNav);
-    
+
     // Update on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         updateActiveNav();
-        
+
         // Also update when clicking nav links
         navLinks.forEach(link => {
-            link.addEventListener('click', function(e) {
+            link.addEventListener('click', function (e) {
                 // Remove active from all
                 navLinks.forEach(l => l.classList.remove('active'));
                 // Add active to clicked
@@ -4817,3 +5223,461 @@ function performDestinationSearch(searchQuery) {
 })();
 
 
+
+// Chatbot Logic (moved from index.html and enhanced)
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatbotWindow = document.getElementById('chatbotWindow');
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotSend = document.getElementById('chatbotSend');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+
+        // Check if elements exist
+        if (!chatbotContainer || !chatbotWindow || !chatbotToggle || !chatbotClose ||
+            !chatbotInput || !chatbotSend || !chatbotMessages) {
+            console.error('Chatbot elements not found');
+            return;
+        }
+
+        // State
+        let currentMode = 'ai'; // 'ai' or 'agency'
+        let currentContext = null; // { agencyName, tourTitle, ... }
+
+        // Chatbot Q&A Database (AI Mode)
+        const chatbotResponses = {
+            // Project description
+            'loyiha': {
+                keywords: ['loyiha', 'nima', 'qiladi', 'qanday', 'nima qiladi', 'loyihangiz', 'ketmon', 'platforma'],
+                response: 'KETMON - Markaziy Osiyo turizm sohasini inqilob qiluvchi keng qamrovli platforma. Biz sayyohlar va agentliklar uchun asosiy sayohat muammolarini hal qilamiz.\n\n' +
+                    'Bizning platformamiz quyidagi xususiyatlarga ega:\n\n' +
+                    '🏪 **Aggregated Tour Marketplace** - Turli agentliklardan tur paketlarini birlashtiruvchi dinamik marketplace\n\n' +
+                    '🔍 **Effortless Comparison & Booking** - Sana, narx, yo\'nalish, sharhlar va mavjudlik bo\'yicha filtrlash va osongina bron qilish\n\n' +
+                    '💳 **Flexible Payment Options** - TNPL (Travel Now Pay Later) tizimi orqali to\'lovni bo\'lib-bo\'lib to\'lash imkoniyati\n\n' +
+                    '🤖 **Intelligent Recommendations** - AI asosida shaxsiylashtirilgan tur tavsiyalari, foydalanuvchi xohishlari va o\'tmishdagi qidiruvlar asosida\n\n' +
+                    'KETMON Markaziy Osiyoda birinchi yirik onlayn tur agregatori bo\'lib, narxlar va tur takliflarida shaffoflik yaratadi, mahalliy tur agentliklarini raqamli vositalar bilan quvvatlaydi va sayyohlar uchun sifatli turlarni topish va bron qilish vaqtini kamaytiradi.'
+            },
+            'mahsulot': {
+                keywords: ['mahsulot', 'kimlar', 'uchun', 'mo\'ljallangan', 'auditoriya', 'kim uchun', 'kimga'],
+                response: 'KETMON mahsuloti ikki asosiy auditoriya uchun yaratilgan:\n\n' +
+                    '👥 **1. Sayyohlar va sayohat qiluvchilar:**\n' +
+                    'Mahsulot sayohat qilishni xohlovchi barcha shaxslar va tashkilotlar uchun yaratilgan, shu jumladan:\n' +
+                    '• Turli narxlar va shaffoflik muammolariga duch kelayotgan sayyohlar\n' +
+                    '• Tur paketlarini solishtirishda qiyinchiliklarga duch kelayotgan shaxslar\n' +
+                    '• Markazlashtirilgan platforma va xavfsiz to\'lov tizimi izlayotgan sayohatchilar\n' +
+                    '• Oilaviy sayohatlar, biznes turlari, guruh turlari va shaxsiy sayohatlar uchun tur paketlari qidirayotganlar\n\n' +
+                    '**Foyda:** KETMON yordamida sayyohlar vaqt va byudjetini tejashadi, shaffof narxlar va TNPL imkoniyatlari orqali sifatli turlarni topish va bron qilish imkoniyatiga ega bo\'lishadi.\n\n' +
+                    '🏢 **2. Tur agentliklari va operatorlar:**\n' +
+                    'Mahsulot quyidagi muammolarga duch kelayotgan agentliklar uchun mo\'ljallangan:\n' +
+                    '• Onlayn mavjudligi yo\'q yoki past raqamlashtirishga ega agentliklar\n' +
+                    '• Mijozlarni jalb qilishda samarasizlik muammolari\n' +
+                    '• Operatsion to\'siqlar va inventar boshqaruvi qiyinchiliklari\n' +
+                    '• Kengroq bozor imkoniyatiga ehtiyoj sezayotgan agentliklar\n\n' +
+                    '**Foyda:** Agentliklar bizning platformamiz yordamida raqamli vositalar va kengroq bozor imkoniyatiga ega bo\'lishadi, 10-15 daqiqada onlayn onboarding, real-vaqt rejimida inventar boshqaruvi va marketing imkoniyatlariga erishishadi.\n\n' +
+                    '📊 **Umumiy ta\'sir:**\n' +
+                    'KETMON O\'zbekiston turizm sohasidagi samaradorlik va ijtimoiy ta\'sir muammolarini hal qiladi, shaffoflik yaratadi, mahalliy agentliklarni quvvatlaydi va mintaqaviy iqtisodiy o\'sishga hissa qo\'shadi.'
+            },
+            'bron': {
+                keywords: ['bron', 'qilish', 'qanday', 'bron qilish', 'buyurtma'],
+                response: 'Bron qilish uchun kerakli destinatsiyani toping, "Bron qilish" tugmasini bosing va to\'lov ma\'lumotlarini kiriting. Biz TNPL (To\'lovni bo\'lib-bo\'lib amalga oshirish) tizimini qo\'llab-quvvatlaymiz, bu sizga to\'lovni qismlarga bo\'lib to\'lash imkoniyatini beradi.'
+            },
+            'narx': {
+                keywords: ['narx', 'narxi', 'qancha', 'narxlar', 'baholash'],
+                response: 'Narxlar turli agentliklar va paketlarga qarab farq qiladi. Platformamizda barcha narxlarni solishtirib ko\'rishingiz mumkin. Minimal budjet 100 USD dan boshlanadi. AI yordamchi sizning budjetingizga mos paketlarni tavsiya qiladi.'
+            },
+            'agentlik': {
+                keywords: ['agentlik', 'agentliklar', 'hamkor', 'tasdiqlangan', 'partnyor'],
+                response: 'KETMON platformasida tasdiqlangan hamkor agentliklar bilan ishlaymiz.\n\n' +
+                    '📋 **Hozirgi holat:**\n' +
+                    '• MVP versiyasi ishga tushirildi\n' +
+                    '• Strategik hamkorliklar (Toshkent, Samarqand, Buxoro)\n' +
+                    '• Agentliklar uchun kutish ro\'yxati qurilmoqda\n\n' +
+                    '🎯 **Rejalashtirilgan:**\n' +
+                    '• 20-30 agentlik (Toshkent, Samarqand, Buxoro)\n' +
+                    '• 10-15 daqiqada tezkor onboarding jarayoni\n' +
+                    '• Real-vaqt rejimida inventar boshqaruvi\n\n' +
+                    'Barcha agentliklar O\'zbekiston Respublikasi Turizm va madaniy meros vazirligi tomonidan litsenziyalangan. Siz agentliklarning litsenziyalarini ko\'rishingiz va ularning turlarini solishtirishingiz mumkin.'
+            },
+            'to\'lov': {
+                keywords: ['to\'lov', 'to\'lash', 'tnpl', 'qanday', 'to\'lov usullari'],
+                response: 'Biz TNPL (To\'lovni bo\'lib-bo\'lib amalga oshirish) tizimini qo\'llab-quvvatlaymiz. Bu sizga to\'lovni qismlarga bo\'lib to\'lash imkoniyatini beradi. Karta orqali xavfsiz to\'lov qilishingiz mumkin. Barcha to\'lovlar xavfsiz va shifrlangan.'
+            },
+            'yordam': {
+                keywords: ['yordam', 'qo\'llab-quvvatlash', 'aloqa', 'bog\'lanish', 'bog\'lanish', 'aloqa qilish'],
+                response: 'Bizning qo\'llab-quvvatlash jamoamiz 24/7 yordam beradi.\n\n' +
+                    '📱 **Telefon orqali:**\n' +
+                    'Telefon raqami: +998 90 765 43 21\n' +
+                    'Ish vaqti: 24/7\n\n' +
+                    '💬 **Xabar yuborish orqali:**\n' +
+                    'Sahifaning pastki qismidagi "Aloqada bo\'laylik" bo\'limiga o\'ting va quyidagilarni bajaring:\n' +
+                    '1. Ismingizni kiriting\n' +
+                    '2. Telefon raqamingizni kiriting (majburiy)\n' +
+                    '3. Xabaringizni yozing\n' +
+                    '4. "Yuborish" tugmasini bosing\n\n' +
+                    'Biz sizning xabaringizni qabul qilib, 30 daqiqada javob beramiz.\n\n' +
+                    '📍 **Manzil:**\n' +
+                    'Toshkent, Navoiy ko\'chasi 12, KETMON HUB\n\n' +
+                    'Siz shuningdek ushbu chatbot orqali savollaringizga javob olishingiz mumkin.'
+            },
+            'destinatsiya': {
+                keywords: ['destinatsiya', 'yo\'nalish', 'qayerga', 'mamlakat', 'shahar'],
+                response: 'Platformamizda dunyoning 40+ manziliga turlar mavjud. Mashhur yo\'nalishlar: Parij, Rim, Dubay, Istanbul, Tokio, Bangkok, London, Boku va boshqalar. Qidiruv funksiyasidan foydalanib, qiziqqan yo\'nalishingizni topishingiz mumkin.'
+            },
+            'ai': {
+                keywords: ['ai', 'yordamchi', 'tavsiya', 'smart', 'intellektual', 'sun\'iy intellekt'],
+                response: 'KETMON AI texnologiyalaridan keng foydalanadi:\n\n' +
+                    '🎯 **AI-Powered Tour Recommendations:**\n' +
+                    '• Foydalanuvchi xohishlari va o\'tmishdagi qidiruvlar asosida shaxsiylashtirilgan tavsiyalar\n' +
+                    '• Sayohat trendlari va mashhur yo\'nalishlar\n' +
+                    '• Budjet va mavjudlik cheklovlari\n' +
+                    '• Foydalanuvchi xulq-atvori tahlili\n\n' +
+                    '💰 **Dynamic Pricing Intelligence:**\n' +
+                    '• Real-vaqt narx optimallashtirish\n' +
+                    '• Talab bashorati va inventar boshqaruvi\n' +
+                    '• Raqobatbardosh narxlar tahlili\n\n' +
+                    '🔍 **Intelligent Search & Filtering:**\n' +
+                    '• Semantik qidiruv imkoniyatlari\n' +
+                    '• Kontekstga sezgir filtrlash\n' +
+                    '• Aqlli tur va foydalanuvchi ehtiyojlarini moslashtirish\n\n' +
+                    '💬 **AI-Powered Customer Support:**\n' +
+                    '• 24/7 mijozlar yordami\n' +
+                    '• Chatbot va virtual yordamchilar\n' +
+                    '• Ko\'p tilli qo\'llab-quvvatlash'
+            },
+            'til': {
+                keywords: ['til', 'language', 'qaysi', 'qo\'llab-quvvatlash', 'tillar'],
+                response: 'Platformamiz 3 tilda qo\'llab-quvvatlanadi: O\'zbek, Rus va Ingliz tillari. Yuqoridagi til tanlovidan foydalanib, qulay tildagi interfeysni tanlashingiz mumkin.'
+            },
+            'muammo': {
+                keywords: ['muammo', 'problem', 'qanday', 'yechim', 'yechadi'],
+                response: 'KETMON quyidagi muammolarni hal qiladi:\n\n' +
+                    '❌ **Muammolar:**\n' +
+                    '• Tur paketlarini solishtirish qiyinligi\n' +
+                    '• Keng tarqalgan narxlar va shaffoflik yo\'qligi\n' +
+                    '• Past raqamlashtirish - ko\'plab agentliklar onlayn mavjud emas\n' +
+                    '• Markazlashtirilgan platforma yo\'qligi\n' +
+                    '• Xavfsiz onlayn to\'lov tizimi yo\'qligi\n\n' +
+                    '✅ **Yechimlar:**\n' +
+                    '• Birlashtirilgan tur marketplace\n' +
+                    '• Osongina solishtirish va bron qilish\n' +
+                    '• TNPL (Travel Now Pay Later) tizimi\n' +
+                    '• AI asosida shaxsiylashtirilgan tavsiyalar\n' +
+                    '• Xavfsiz onlayn to\'lov integratsiyasi\n' +
+                    '• Agentliklar uchun raqamli vositalar'
+            },
+            'roadmap': {
+                keywords: ['roadmap', 'reja', 'bosqich', 'rivojlanish', 'plani'],
+                response: 'KETMON rivojlanish bosqichlari:\n\n' +
+                    '✅ **Phase 1: Foundation (Yakunlangan)**\n' +
+                    '• MVP veb-platforma\n' +
+                    '• Asosiy marketplace funksiyalari\n' +
+                    '• Bron va to\'lov integratsiyasi\n\n' +
+                    '🚧 **Phase 2: Enhancement (Joriy - 3-6 oy)**\n' +
+                    '• MVP mobil ilova\n' +
+                    '• Rivojlangan AI integratsiyasi\n' +
+                    '• 20-30 agentlik tarmog\'i\n' +
+                    '• TNPL tizimi integratsiyasi\n\n' +
+                    '📈 **Phase 3: Growth (6-12 oy)**\n' +
+                    '• 10,000 foydalanuvchi va 1,000 bron\n' +
+                    '• Premium analytics va featured listings\n' +
+                    '• Influencer hamkorliklari\n\n' +
+                    '🌍 **Phase 4: Expansion (12-18 oy)**\n' +
+                    '• O\'zbekistonda #1 platforma\n' +
+                    '• 50,000 foydalanuvchi va 5,000 bron\n' +
+                    '• Qozog\'iston, Qirg\'iziston va Tojikistonga kengaytirish'
+            }
+        };
+
+        // Default responses
+        const defaultResponses = [
+            'Kechirasiz, men bu savolga javob bera olmayman. Iltimos, boshqa savol bering yoki biz bilan aloqa qiling.\n\n' +
+            '📱 **Telefon orqali:**\n' +
+            '+998 90 765 43 21\n\n' +
+            '💬 **Xabar yuborish orqali:**\n' +
+            'Sahifaning pastki qismidagi "Aloqada bo\'laylik" bo\'limiga o\'ting:\n' +
+            '1. Ismingizni kiriting\n' +
+            '2. Telefon raqamingizni kiriting\n' +
+            '3. Xabaringizni yozing\n' +
+            '4. "Yuborish" tugmasini bosing\n\n' +
+            'Biz 30 daqiqada javob beramiz.',
+            'Bu savol haqida aniqroq ma\'lumot olish uchun biz bilan bog\'laning:\n\n' +
+            '📱 **Telefon:** +998 90 765 43 21\n\n' +
+            '💬 **Xabar yuborish:**\n' +
+            '"Aloqada bo\'laylik" bo\'limiga o\'ting va forma to\'ldiring. Ism, telefon va xabaringizni kiriting, biz tez orada javob beramiz.',
+            'Men hali bu savolga javob bera olmayman. Iltimos, boshqa savol bering.\n\n' +
+            'Yoki biz bilan aloqa qiling:\n' +
+            '📱 Telefon: +998 90 765 43 21\n' +
+            '💬 "Aloqada bo\'laylik" bo\'limidan xabar yuboring\n\n' +
+            'Siz shuningdek "yordam", "bron", "narx" kabi so\'zlar yozib, ma\'lumot olishingiz mumkin.'
+        ];
+
+        // Toggle chatbot window (default view)
+        chatbotToggle.addEventListener('click', function () {
+            if (chatbotWindow.classList.contains('active')) {
+                chatbotWindow.classList.remove('active');
+            } else {
+                openChatbot('ai');
+            }
+        });
+
+        chatbotClose.addEventListener('click', function () {
+            chatbotWindow.classList.remove('active');
+        });
+
+        // Open Chatbot with specific mode and context
+        window.openChatbot = function (mode = 'ai', context = null) {
+            currentMode = mode;
+            currentContext = context;
+
+            // Show window
+            chatbotWindow.classList.add('active');
+            chatbotInput.focus();
+
+            // Clear messages if switching context? Maybe not, keep history.
+            // But if Agency mode, show specific welcome message.
+            if (currentMode === 'agency' && context) {
+                const welcomeMsg = `Salom! Men ${context.agencyName || 'Agentlik'} vakiliman. Sizga "${context.tourTitle}" bo'yicha qanday yordam bera olaman?`;
+                addMessage(welcomeMsg, false);
+            } else if (currentMode === 'ai' && chatbotMessages.children.length <= 1) {
+                // Initial AI message is already there in HTML, but if cleared/reopened maybe show again?
+                // The HTML static message covers the first load.
+            }
+        };
+
+        // Find matching response
+        function findResponse(userMessage) {
+            const lowerMessage = userMessage.toLowerCase().trim();
+
+            // Agency Mode Response (Simple Simulation)
+            if (currentMode === 'agency') {
+                return `Rahmat! Sizning so'rovingiz "${currentContext?.agencyName || 'bizning agentlik'}" menejerlariga yuborildi. Tez orada siz bilan bog'lanamiz. Yana savollaringiz bormi?`;
+            }
+
+            // AI Mode Response
+            // Check each response category
+            for (const [key, data] of Object.entries(chatbotResponses)) {
+                for (const keyword of data.keywords) {
+                    if (lowerMessage.includes(keyword)) {
+                        return data.response;
+                    }
+                }
+            }
+
+            // Return random default response
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        // Add message to chat
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chatbot-message ${isUser ? 'user-message' : 'bot-message'}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            const p = document.createElement('p');
+            p.textContent = text;
+            contentDiv.appendChild(p);
+            messageDiv.appendChild(contentDiv);
+
+            chatbotMessages.appendChild(messageDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+        }
+
+        // Send message
+        function sendMessage() {
+            const message = chatbotInput.value.trim();
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, true);
+            chatbotInput.value = '';
+
+            // Simulate typing delay
+            setTimeout(() => {
+                const response = findResponse(message);
+                addMessage(response, false);
+            }, 500);
+        }
+
+        // Event listeners
+        chatbotSend.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    });
+})();
+
+/* Main App Initialization */
+document.addEventListener('DOMContentLoaded', function () {
+
+    // 1. Smart Calculator Logic
+    const minInput = document.getElementById('priceMin');
+    const maxInput = document.getElementById('priceMax');
+    const clearBtn = document.getElementById('calcClear');
+    const citySelect = document.getElementById('calcCity');
+    const recommendBtn = document.getElementById('calcRecommendBtn');
+
+    if (clearBtn) {
+        clearBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (minInput) minInput.value = 35166305;
+            if (maxInput) maxInput.value = 64736289;
+            if (citySelect) citySelect.selectedIndex = 0;
+        });
+    }
+
+    // Smart Calculator Data & Logic
+    var tourPackages_OLD = [
+        { city: 'istanbul', title: 'Istanbul Klassik', days: 5, price: 5500000, includes: 'Mehmonxona, Nonushta, Transfer', note: 'Eng arzon variant' },
+        { city: 'istanbul', title: 'Istanbul Premium', days: 7, price: 8200000, includes: '5* Mehmonxona, Barcha ovqatlar, Gid', note: 'Qulaylikni sevuvchilar uchun' },
+        { city: 'dubai', title: 'Dubay Sayyohati', days: 4, price: 6800000, includes: 'Mehmonxona, Viza, Transfer', note: 'Tezkor sayohat' },
+        { city: 'dubai', title: 'Dubay Luks', days: 6, price: 12500000, includes: 'Burj Khalifa, Safari, 5* Hotel', note: 'Unutilmas taassurotlar' },
+        { city: 'sharm', title: 'Sharm Relax', days: 7, price: 7200000, includes: 'All Inclusive, Dengiz bo\'yi', note: 'Dam olish uchun ideal' },
+        { city: 'paris', title: 'Parij Romantikasi', days: 5, price: 10500000, includes: 'Mehmonxona, Transfer, Eiffel', note: 'Juftliklar uchun' },
+        { city: 'london', title: 'London Ekskursiyasi', days: 6, price: 11200000, includes: 'Mehmonxona, Gid, Muzeylar', note: 'Tarix ixlosmandlari uchun' },
+        { city: 'tashkent', title: 'Toshkent Bo\'ylab', days: 2, price: 1500000, includes: 'Mehmonxona, Gid, Ovqatlanish', note: 'Poytaxt mehmonlari uchun' },
+        { city: 'baku', title: 'Boku Shamoli', days: 4, price: 4500000, includes: 'Mehmonxona, Transfer, Eski shahar', note: 'Hamyonbop sayohat' },
+        { city: 'antalya', title: 'Antalya Plyajlari', days: 7, price: 8500000, includes: 'All Inclusive, Avia', note: 'Yozgi ta\'til uchun' },
+        { city: 'tokyo', title: 'Tokio Kelajagi', days: 7, price: 18000000, includes: 'Mehmonxona, Metro kartasi, Gid', note: 'Texnologiya va madaniyat' },
+        { city: 'seoul', title: 'Seul Madaniyati', days: 6, price: 14000000, includes: 'Mehmonxona, Saroylar, Transfer', note: 'K-Pop va tarix' },
+        { city: 'kuala-lumpur', title: 'Malayziya Tropiklari', days: 8, price: 9200000, includes: 'Mehmonxona, Transfer, Ekskursiya', note: 'Tabiat va shahar' }
+    ];
+
+    if (recommendBtn) {
+        recommendBtn.addEventListener('click', function () {
+            const city = citySelect.value;
+            const budget = parseInt(maxInput.value) || 0;
+            const resultsContainer = document.getElementById('calcResults');
+
+            if (!resultsContainer) return;
+
+            if (!city) {
+                alert("Iltimos, shaharni tanlang!");
+                return;
+            }
+
+            // Filter
+            const filtered = tourPackages.filter(pkg =>
+                pkg.city === city && pkg.price <= budget
+            );
+
+            // Sort (Cheapest first)
+            filtered.sort((a, b) => a.price - b.price);
+
+            // Display
+            resultsContainer.style.display = 'grid';
+            resultsContainer.innerHTML = '';
+
+            if (filtered.length === 0) {
+                resultsContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #666; padding: 20px;">
+                    Ushbu narxda (${budget.toLocaleString()} so'm) turlar topilmadi. Iltimos, byudjetni oshiring.
+                </div>`;
+            } else {
+                filtered.forEach(pkg => {
+                    const card = document.createElement('div');
+                    card.className = 'calc-result-card';
+                    card.innerHTML = `
+                        <div class="calc-res-title">${pkg.title}</div>
+                        <div class="calc-res-meta">
+                            <span>📅 ${pkg.days} Kun</span>
+                        </div>
+                        <div class="calc-res-price">${pkg.price.toLocaleString()} so'm</div>
+                        <div class="calc-res-includes">✅ ${pkg.includes}</div>
+                        <div class="calc-res-note">💡 ${pkg.note}</div>
+                        <button class="destination-book-btn" style="width:100%; margin-top:10px; padding:8px; background:#0a4d68; color:white; border:none; border-radius:4px; cursor:pointer;">Bron qilish</button>
+                    `;
+                    resultsContainer.appendChild(card);
+                });
+            }
+
+            // Scroll to results
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    }
+
+    // 2. Hero Search Button Logic
+    const searchBtn = document.getElementById('heroSearchBtn');
+    const heroCitySelect = document.getElementById('heroCitySelect');
+
+    if (searchBtn) {
+        searchBtn.addEventListener('click', function () {
+            const city = heroCitySelect ? heroCitySelect.value : '';
+            if (city) {
+                alert('Qidirilmoqda: ' + city);
+                const destSection = document.getElementById('destinations');
+                if (destSection) destSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Iltimos, boradigan shaharni tanlang!');
+                if (heroCitySelect) heroCitySelect.focus();
+            }
+        });
+    }
+
+    // 3. Category Dropdown Toggle
+    const catBtn = document.getElementById('categoryMainBtn');
+    const catMenu = document.getElementById('categoryDropdown');
+
+    if (catBtn && catMenu) {
+        catBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            catMenu.classList.toggle('hidden');
+        });
+        document.addEventListener('click', function (e) {
+            if (!catBtn.contains(e.target) && !catMenu.contains(e.target)) {
+                catMenu.classList.add('hidden');
+            }
+        });
+        catMenu.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                catMenu.classList.add('hidden');
+                // Simulate category loading
+                alert("Kategoriya tanlandi: " + btn.textContent.trim());
+            });
+        });
+    }
+
+    // 4. Infinite Scroll for Destinations
+    const grid = document.querySelector('.destination-grid');
+    let isLoading = false;
+
+    function loadMoreDestinations() {
+        if (isLoading || !grid) return;
+        isLoading = true;
+
+        setTimeout(() => {
+            const cards = Array.from(grid.querySelectorAll('.destination-card'));
+            const batch = cards.slice(0, 4);
+
+            if (batch.length > 0) {
+                batch.forEach(card => {
+                    const clone = card.cloneNode(true);
+                    grid.appendChild(clone);
+                });
+            }
+            isLoading = false;
+        }, 800);
+    }
+
+    // 5. Booking Buttons (Global Delegation)
+    document.addEventListener('click', function (e) {
+        if (e.target.classList.contains('destination-book-btn') || e.target.closest('.destination-book-btn')) {
+            e.preventDefault();
+            const card = e.target.closest('.destination-card');
+            const title = card ? card.querySelector('.destination-title').innerText : 'Tur';
+            alert(title + " uchun bron qilish oynasi ochilmoqda...");
+        }
+    });
+
+    // Scroll Listener
+    window.addEventListener('scroll', function () {
+        if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
+            loadMoreDestinations();
+        }
+    });
+
+});
