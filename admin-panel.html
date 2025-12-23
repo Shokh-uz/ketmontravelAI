@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | KETMON Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="agency-dashboard.css">
+    <link rel="stylesheet" href="toast-notifications.css">
+    <style>
+        :root {
+            --admin-accent: #6366f1;
+            --admin-bg: #f8fafc;
+        }
+
+        .admin-sidebar {
+            background: #1e293b;
+            color: white;
+        }
+
+        .admin-sidebar .sidebar-link {
+            color: #94a3b8;
+        }
+
+        .admin-sidebar .sidebar-link:hover,
+        .admin-sidebar .sidebar-link.active {
+            background: #334155;
+            color: white;
+            border-left: 4px solid var(--admin-accent);
+        }
+
+        .admin-sidebar .sidebar-avatar {
+            background: var(--admin-accent);
+        }
+
+        .tour-review-card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .review-img {
+            width: 100%;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .review-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-approve {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="agency-page">
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar admin-sidebar">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar" id="admin-initials">A</div>
+                <div class="sidebar-info">
+                    <h4 id="admin-name">Administrator</h4>
+                    <p>Platform Guru</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-tab="overview">
+                    <span>📊 Overview</span>
+                </a>
+                <a href="#" class="sidebar-link" data-tab="approvals">
+                    <span>🛡️ Tour Approvals</span>
+                </a>
+                <a href="#" class="sidebar-link" data-tab="agencies">
+                    <span>🏢 Agencies</span>
+                </a>
+                <a href="index.html" class="sidebar-link">
+                    <span>🏠 Back to Home</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Overview Tab -->
+            <section id="tab-overview" class="dashboard-tab active">
+                <div class="content-header">
+                    <h1 class="welcome-title">Platform Stats</h1>
+                    <p class="welcome-subtitle">Monitoring the KETMON ecosystem.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-users">0</span>
+                            <span class="stat-label">Total Users</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏢</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-agencies">0</span>
+                            <span class="stat-label">Active Agencies</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🗺️</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-tours">0</span>
+                            <span class="stat-label">Total Tours</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="stat-revenue">$0</span>
+                            <span class="stat-label">GMV</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Approvals Tab -->
+            <section id="tab-approvals" class="dashboard-tab">
+                <div class="content-header">
+                    <h1 class="welcome-title">Tour Approvals</h1>
+                    <p class="welcome-subtitle">Review submitted tours for quality and safety.</p>
+                </div>
+
+                <div id="pending-tours-list">
+                    <!-- Pending tours will be loaded here -->
+                    <div class="empty-state" style="padding: 100px; text-align: center;">
+                        <p>Loading pending tours...</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="api.js"></script>
+    <script src="utilities.js"></script>
+    <script src="admin-panel.js"></script>
+</body>
+
+</html>

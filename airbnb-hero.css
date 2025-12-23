@@ -1,0 +1,266 @@
+/* ================================================
+   AIRBNB-INSPIRED HERO SECTION
+   Full-height visual hero with minimal text overlay
+   ================================================ */
+
+/* Hero Container */
+.hero {
+    position: relative;
+    min-height: 60vh;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0A4D68 0%, #0E6B91 100%);
+}
+
+/* Background Image with Overlay */
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 1;
+}
+
+/* Dark Overlay for Text Readability */
+.hero::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom,
+            rgba(10, 77, 104, 0.4) 0%,
+            rgba(10, 77, 104, 0.6) 50%,
+            rgba(10, 77, 104, 0.8) 100%);
+    z-index: 2;
+}
+
+/* Hero Content Container */
+.hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    color: white;
+    max-width: 900px;
+    padding: 0 24px;
+    animation: fadeInUp 1s ease-out;
+}
+
+/* Main Headline */
+.hero h1 {
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: white;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+    letter-spacing: -0.01em;
+}
+
+/* Subtitle */
+.hero-subtitle {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 400;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    color: rgba(255, 255, 255, 0.9);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Hero Buttons (if needed) */
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.hero-btn {
+    padding: 16px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.hero-btn-primary {
+    background: var(--accent-gold);
+    color: #0A4D68;
+    box-shadow: 0 4px 16px rgba(212, 175, 55, 0.4);
+}
+
+.hero-btn-primary:hover {
+    background: var(--accent-gold-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(212, 175, 55, 0.6);
+}
+
+.hero-btn-secondary {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.hero-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Scroll Indicator */
+.scroll-indicator {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    animation: bounce 2s infinite;
+}
+
+.scroll-indicator svg {
+    width: 32px;
+    height: 32px;
+    stroke: white;
+    opacity: 0.8;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    40% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+
+    60% {
+        transform: translateX(-50%) translateY(-5px);
+    }
+}
+
+/* Search Section Below Hero */
+.hero-search-section {
+    position: relative;
+    margin-top: -60px;
+    z-index: 10;
+    padding-bottom: 60px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 50vh;
+        height: auto;
+        padding: 80px 0 60px;
+    }
+
+    .hero h1 {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .hero-subtitle {
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .hero-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .scroll-indicator {
+        bottom: 16px;
+    }
+
+    .hero-search-section {
+        margin-top: -40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 60px 0 40px;
+        min-height: 45vh;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    .hero-subtitle {
+        font-size: 14px;
+    }
+
+    .hero-content {
+        padding: 0 16px;
+    }
+}
+
+/* Parallax Effect on Scroll (Optional) */
+@media (prefers-reduced-motion: no-preference) {
+    .hero::before {
+        transition: transform 0.5s ease-out;
+    }
+}
+
+/* Dark Mode Support */
+[data-theme="dark"] .hero::after {
+    background: linear-gradient(to bottom,
+            rgba(10, 77, 104, 0.5) 0%,
+            rgba(10, 77, 104, 0.7) 50%,
+            rgba(10, 77, 104, 0.9) 100%);
+}
+
+/* High Resolution Displays */
+@media (-webkit-min-device-pixel-ratio: 2),
+(min-resolution: 192dpi) {
+    .hero::before {
+        background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=2560&q=90');
+    }
+}

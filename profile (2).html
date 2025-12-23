@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sizning Profilingiz | KETMON</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-navigation.css">
+    <link rel="stylesheet" href="toast-notifications.css">
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+        }
+
+        body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding-top: 80px;
+        }
+
+        .profile-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 30px;
+        }
+
+        /* Sidebar Card */
+        .profile-side {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card-premium {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .profile-header {
+            text-align: center;
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 10px 20px rgba(10, 77, 104, 0.2);
+        }
+
+        .profile-name {
+            font-size: 24px;
+            font-family: var(--font-primary);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .profile-email {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .profile-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .menu-item {
+            padding: 12px 18px;
+            border-radius: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background: rgba(10, 77, 104, 0.05);
+            color: var(--accent-primary);
+        }
+
+        /* Main Content */
+        .profile-main {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .section-header {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-family: var(--font-primary);
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Bookings List */
+        .bookings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .booking-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 20px;
+            align-items: center;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
+            transition: transform 0.2s;
+        }
+
+        .booking-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .booking-img {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .booking-info h4 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .booking-meta {
+            font-size: 14px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 99px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-paid {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .btn-pay {
+            background: var(--accent-primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @media (max-width: 992px) {
+            .profile-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation (Reused) -->
+    <header class="main-header scrolled">
+        <nav class="nav-container">
+            <div class="nav-logo"><a href="index.html">KETMON</a></div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn">Bosh sahifa</a>
+                <button class="btn secondary" onclick="window.ketmonApi.auth.logout()">Chiqish</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="profile-container">
+        <!-- Profile Sidebar -->
+        <aside class="profile-side">
+            <div class="card-premium profile-header">
+                <div class="profile-avatar-large" id="avatar-initials">?</div>
+                <h2 class="profile-name" id="user-name">Yuklanmoqda...</h2>
+                <div class="profile-email" id="user-email">...</div>
+
+                <ul class="profile-menu">
+                    <li class="menu-item active" id="menu-bookings" onclick="showTab('bookings')">Mening sayohatlarim
+                    </li>
+                    <li class="menu-item" id="menu-messages" onclick="showTab('messages')">Mening xabarlarim</li>
+                    <li class="menu-item" id="menu-settings" onclick="showTab('settings')">Profil sozlamalari</li>
+                    <li class="menu-item" onclick="window.ketmonApi.auth.logout()">Chiqish</li>
+                </ul>
+            </div>
+
+            <div class="card-premium">
+                <h4 style="margin-bottom: 10px;">Yordam kerakmi?</h4>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Savollaringiz bo'lsa,
+                    chatbotimizga murojaat qiling.</p>
+                <button class="btn secondary" style="width: 100%;" onclick="openChatbot()">Chat galdan</button>
+            </div>
+        </aside>
+
+        <!-- Main Content (Bookings) -->
+        <section class="profile-main" id="profile-content">
+            <div id="tab-bookings" class="profile-tab active">
+                <div class="section-header">
+                    <h2 class="section-title">Mening sayohatlarim</h2>
+                </div>
+                <div class="bookings-list" id="bookings-container">
+                    <div class="skeleton-list">
+                        <div style="height: 100px; background: #eee; border-radius: 16px; margin-bottom: 15px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-messages" class="profile-tab" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Mening xabarlarm</h2>
+                </div>
+                <div class="messaging-container"
+                    style="display: grid; grid-template-columns: 280px 1fr; background: white; border-radius: 20px; border: 1px solid var(--border-color); height: 600px; overflow: hidden;">
+                    <div id="conversations-list" style="border-right: 1px solid var(--border-color); overflow-y: auto;">
+                        <p style="padding: 20px; text-align: center;">Xabarlar yuklanmoqda...</p>
+                    </div>
+                    <div style="display: flex; flex-direction: column;">
+                        <div id="chat-messages"
+                            style="flex: 1; padding: 20px; overflow-y: auto; background: #fbfcfd; display: flex; flex-direction: column; gap: 10px;">
+                            <p style="text-align: center; margin-top: 100px; color: var(--text-secondary);">Suhbatni
+                                boshlash uchun tanlang</p>
+                        </div>
+                        <div id="chat-input-area"
+                            style="padding: 15px; border-top: 1px solid var(--border-color); display: none; gap: 10px;">
+                            <input type="text" id="message-input" placeholder="Xabar..."
+                                style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);">
+                            <button class="btn-pay" onclick="handleSendMessage()">Yuborish</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-settings" class="profile-tab" style="display: none;">
+                <div class="section-header">
+                    <h2 class="section-title">Profil sozlamalari</h2>
+                </div>
+                <div class="card-premium">
+                    <p>Ushbu bo'lim tez kunda ishga tushadi.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="api.js"></script>
+    <script src="utilities.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!window.ketmonApi.auth.isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Set user data
+            const user = JSON.parse(localStorage.getItem('ketmon_user'));
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('avatar-initials').textContent = user.name.charAt(0).toUpperCase();
+
+            // Fetch Bookings
+            loadBookings();
+        });
+
+        async function loadBookings() {
+            const container = document.getElementById('bookings-container');
+
+            try {
+                const bookings = await window.ketmonApi.bookings.getMyBookings();
+
+                if (bookings.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 60px 20px;">
+                            <img src="https://cdni.iconscout.com/illustration/premium/thumb/empty-cart-2130356-1800917.png" style="width: 200px; margin-bottom: 20px;">
+                            <h3>Hali hech qanday sayohat bron qilmagansiz</h3>
+                            <p style="color: var(--text-secondary); margin-bottom: 25px;">O'zingiz uchun unutilmas sayohatni hoziroq tanlang!</p>
+                            <a href="index.html#destinations" class="btn-primary" style="text-decoration: none;">Sayohatlarni qidirish</a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = bookings.map(b => {
+                    const tour = b.tour;
+                    const date = new Date(b.tourDate).toLocaleDateString('uz-UZ');
+                    const statusClass = b.status === 'paid' ? 'status-paid' : 'status-pending';
+                    const statusLabel = b.status === 'paid' ? 'To\'langan' : 'Kutilmoqda';
+                    const imageUrl = tour.images && tour.images.length > 0 ? tour.images[0].imageUrl : 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400';
+
+                    return `
+                        <div class="booking-item">
+                            <img src="${imageUrl}" class="booking-img" alt="${tour.titleEn}">
+                            <div class="booking-info">
+                                <h4>${tour.titleUz || tour.titleEn}</h4>
+                                <div class="booking-meta">
+                                    <span>📅 ${date}</span>
+                                    <span>👤 ${b.numAdults} kattalar</span>
+                                    <span>💰 $${parseFloat(b.totalPrice).toLocaleString()}</span>
+                                </div>
+                                <div style="margin-top: 5px; font-size: 12px; color: var(--text-secondary);">Ref: ${b.bookingRef}</div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                ${b.status === 'pending' ? `<button class="btn-pay" onclick="payNow('${b.id}')">To'lash</button>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+                container.innerHTML = `<p style="color: red;">Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.</p>`;
+            }
+        }
+
+        window.payNow = async (bookingId) => {
+            try {
+                // Show choice modal for Click/Payme
+                const provider = confirm('Click orqali to\'lash (OK) yoki Payme (Cancel)?') ? 'click' : 'payme';
+
+                const url = `/payments/initiate/${provider}`;
+                const response = await window.ketmonApi.request(url, {
+                    method: 'POST',
+                    body: JSON.stringify({ bookingId })
+                });
+
+                if (response.paymentUrl) {
+                    window.open(response.paymentUrl, '_blank');
+                    showInfo("To'lov oynasi ochildi. To'lovdan so'ng sahifani yangilang.");
+                }
+            } catch (error) {
+                showError("To'lovni boshlashda xatolik.");
+            }
+        };
+
+        // NEW: TAB AND MESSAGING LOGIC
+        function showTab(tabName) {
+            document.querySelectorAll('.profile-tab').forEach(tab => tab.style.display = 'none');
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+
+            document.getElementById(`tab-${tabName}`).style.display = 'block';
+            document.getElementById(`menu-${tabName}`).classList.add('active');
+
+            if (tabName === 'messages') loadConversations();
+        }
+
+        let activePartnerId = null;
+
+        async function loadConversations() {
+            const list = document.getElementById('conversations-list');
+            try {
+                const convs = await window.ketmonApi.messages.getConversations();
+                if (convs.length === 0) {
+                    list.innerHTML = '<p style="padding: 20px; text-align:center;">Xabarlar yo\'q</p>';
+                    return;
+                }
+                list.innerHTML = convs.map(c => `
+                    <div style="padding: 15px; border-bottom: 1px dotted #ccc; cursor:pointer;" onclick="selectConversation('${c.partner.id}', '${c.partner.name}')">
+                        <strong>${c.partner.name}</strong><br>
+                        <small style="color:#666">${c.lastMessage.text.substring(0, 20)}...</small>
+                    </div>
+                `).join('');
+            } catch (e) { console.error(e); }
+        }
+
+        async function selectConversation(id, name) {
+            activePartnerId = id;
+            document.getElementById('chat-input-area').style.display = 'flex';
+            loadMessages();
+        }
+
+        async function loadMessages() {
+            if (!activePartnerId) return;
+            const box = document.getElementById('chat-messages');
+            try {
+                const msgs = await window.ketmonApi.messages.getMessagesWith(activePartnerId);
+                const userId = JSON.parse(localStorage.getItem('ketmon_user')).id;
+                box.innerHTML = msgs.map(m => `
+                    <div style="align-self: ${m.senderId === userId ? 'flex-end' : 'flex-start'}; background: ${m.senderId === userId ? 'var(--accent-primary)' : '#eee'}; color: ${m.senderId === userId ? 'white' : 'black'}; padding: 8px 12px; border-radius: 12px; max-width: 80%; font-size: 14px;">
+                        ${m.text}
+                    </div>
+                `).join('');
+                box.scrollTop = box.scrollHeight;
+            } catch (e) { console.error(e); }
+        }
+
+        async function handleSendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            if (!text || !activePartnerId) return;
+            try {
+                await window.ketmonApi.messages.sendMessage({ recipientId: activePartnerId, text });
+                input.value = '';
+                loadMessages();
+                loadConversations();
+            } catch (e) { showError('Xatolik'); }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentlik Portali - Kirish | KETMON</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="agency-auth.css">
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Logo -->
+            <div class="auth-header">
+                <div class="auth-logo">MVP</div>
+                <h1>Agentlik Portali</h1>
+                <p>Tur paketlaringizni boshqaring va minglab sayyohlarga yetib boring</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Kirish</button>
+                <button class="auth-tab" data-tab="register">Ro'yxatdan o'tish</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form active">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="agency@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Parol</label>
+                    <input type="password" name="password" placeholder="Parolingizni kiriting" required>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox">
+                        <input type="checkbox" name="remember">
+                        <span>Eslab qolish</span>
+                    </label>
+                    <a href="#" class="forgot-link">Parolni unutdingizmi?</a>
+                </div>
+
+                <button type="submit" class="submit-btn" onclick="simulateLogin(event)">
+                    Dashboardga kirish
+                </button>
+            </form>
+
+            <!-- Registration Form -->
+            <form id="register-form" class="auth-form">
+                <div class="form-group">
+                    <label>Agentlik nomi</label>
+                    <input type="text" name="agency_name" placeholder="Sizning Agentlik Nomingiz" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mas'ul shaxs</label>
+                    <input type="text" name="contact_name" placeholder="To'liq ism" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="agency@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Telefon raqami</label>
+                    <input type="tel" name="phone" placeholder="+998 90 123 45 67" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Mamlakat</label>
+                    <select name="country" required>
+                        <option value="">Mamlakatni tanlang</option>
+                        <option value="UZ" selected>O'zbekiston</option>
+                        <option value="TR">Turkiya</option>
+                        <option value="AE">BAA</option>
+                        <option value="RU">Rossiya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Parol</label>
+                    <input type="password" name="password" placeholder="Kamida 8 ta belgi" required minlength="8">
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox">
+                        <input type="checkbox" name="terms" required>
+                        <span>Men <a href="#">Foydalanish shartlariga</a> roziman</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="submit-btn" onclick="simulateLogin(event)">
+                    Agentlik hisobini yaratish
+                </button>
+            </form>
+
+            <!-- Info Section -->
+            <div class="auth-info">
+                <h3>Nega biz bilan hamkorlik qilish kerak?</h3>
+                <ul>
+                    <li>✅ 200,000+ faol sayyohga ega bo'ling</li>
+                    <li>✅ Ro'yxatga olish bepul - faqat bronlardan komissiya to'lang</li>
+                    <li>✅ Real vaqt rejimida bronlarni boshqarish</li>
+                    <li>✅ 24/7 qo'llab-quvvatlash jamoasi</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Side Visual -->
+        <div class="auth-visual">
+            <div class="visual-overlay">
+                <h2>Biznesingizni o'stiring</h2>
+                <p>Platformamizdan foydalanayotgan 500+ agentliklar safiga qo'shiling</p>
+                <div class="visual-badge">
+                    <span class="count">#1</span>
+                    <span class="text">Turistik marketplace</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching logic
+        document.querySelectorAll('.auth-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+
+                // Update tabs
+                document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Update forms
+                document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                document.getElementById(`${target}-form`).classList.add('active');
+            });
+        });
+
+        // Simulation for login
+        function simulateLogin(e) {
+            e.preventDefault();
+            const btn = e.target;
+            const originalText = btn.innerText;
+            btn.innerText = 'Kirilmoqda...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = 'agency-dashboard.html';
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+/* Calculator CTA Button in Hero Section */
+.calculator-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #05BFDB 0%, #088395 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(5, 191, 219, 0.3);
+    margin-top: 12px;
+    border: 2px solid transparent;
+}
+
+.calculator-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(5, 191, 219, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.calculator-cta-btn:active {
+    transform: translateY(0);
+}
+
+.calculator-cta-btn svg {
+    flex-shrink: 0;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .calculator-cta-btn {
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
+        padding: 10px 20px;
+    }
+}
+
+/* Animation on page load */
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.calculator-cta-btn {
+    animation: slideInUp 0.6s ease 0.3s both;
+}

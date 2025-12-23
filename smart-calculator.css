@@ -1,0 +1,423 @@
+/* Smart Budget Calculator Premium Styles */
+:root {
+    /* KETMON Brand Colors */
+    --calc-primary: #0a4d68;
+    /* Deep Teal */
+    --calc-secondary: #088395;
+    /* Lighter Teal */
+    --calc-accent: #05BFDB;
+    /* Bright Cyan */
+    --calc-light: #00FFCA;
+    /* Light Cyan Highlight */
+    --calc-success: #48bb78;
+    --calc-bg: #f7fafc;
+    --calc-card-bg: #ffffff;
+    --calc-border: #e2e8f0;
+    --calc-text: #2d3748;
+    --calc-text-muted: #718096;
+}
+
+.smart-calculator-premium {
+    padding: 60px 0;
+    background: var(--calc-bg);
+}
+
+.calculator-panel {
+    max-width: 900px;
+    margin: 0 auto;
+    background: var(--calc-card-bg);
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    padding: 30px;
+}
+
+.calculator-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.calculator-header h2 {
+    font-size: 32px;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--calc-primary) 0%, var(--calc-secondary) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 10px;
+}
+
+.calculator-header .subtitle {
+    color: var(--calc-text-muted);
+    font-size: 18px;
+}
+
+/* Progress Indicator */
+.progress-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 30px;
+    gap: 12px;
+}
+
+.step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.step-number {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--calc-border);
+    color: var(--calc-text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active .step-number {
+    background: var(--calc-primary);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(10, 77, 104, 0.2);
+}
+
+.step-indicator.completed .step-number {
+    background: var(--calc-success);
+    color: white;
+}
+
+.step-line {
+    width: 40px;
+    height: 2px;
+    background: var(--calc-border);
+}
+
+.step-indicator.completed+.step-line {
+    background: var(--calc-success);
+}
+
+/* Steps Content */
+.calc-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.calc-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Step 1: Budget Selection */
+.budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.budget-option {
+    padding: 16px;
+    border: 2px solid var(--calc-border);
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.budget-option:hover {
+    border-color: var(--calc-accent);
+    background: rgba(5, 191, 219, 0.02);
+    transform: translateY(-2px);
+}
+
+.budget-option.active {
+    border-color: var(--calc-primary);
+    background: rgba(10, 77, 104, 0.05);
+    box-shadow: 0 10px 20px rgba(10, 77, 104, 0.1);
+}
+
+.range-label {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--calc-text);
+}
+
+.radio-indicator {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--calc-border);
+    border-radius: 50%;
+    position: relative;
+}
+
+.budget-option.active .radio-indicator {
+    border-color: var(--calc-primary);
+}
+
+.budget-option.active .radio-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    background: var(--calc-primary);
+    border-radius: 50%;
+}
+
+/* Basic Info */
+.info-row {
+    display: flex;
+    gap: 30px;
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.info-field {
+    flex: 1;
+    min-width: 250px;
+}
+
+.info-field label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: var(--calc-text);
+}
+
+/* Selection Grids (Travelers & Duration) */
+.selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.selection-btn {
+    padding: 12px 10px;
+    border: 1px solid var(--calc-border);
+    border-radius: 10px;
+    background: white;
+    color: var(--calc-text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    font-size: 14px;
+}
+
+.selection-btn:hover {
+    border-color: var(--calc-accent);
+    background: rgba(5, 191, 219, 0.02);
+}
+
+.selection-btn.active {
+    background: var(--calc-primary);
+    color: white;
+    border-color: var(--calc-primary);
+    box-shadow: 0 4px 10px rgba(10, 77, 104, 0.2);
+}
+
+.duration-grid {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+}
+
+.duration-btn .range {
+    display: block;
+    font-weight: 700;
+}
+
+.duration-btn .label {
+    display: block;
+    font-size: 11px;
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+/* Step 2: Preferences */
+.preference-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 15px;
+}
+
+.preference-card {
+    padding: 20px;
+    border: 2px solid var(--calc-border);
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.preference-card .icon {
+    font-size: 32px;
+}
+
+.preference-card .label {
+    font-weight: 600;
+    color: var(--calc-text);
+}
+
+.preference-card:hover {
+    border-color: var(--calc-accent);
+    transform: translateY(-2px);
+}
+
+.preference-card.active {
+    border-color: var(--calc-primary);
+    background: rgba(10, 77, 104, 0.1);
+}
+
+/* Step 3: Results */
+.results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--calc-border);
+}
+
+.results-info h3 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--calc-text);
+    margin-bottom: 4px;
+}
+
+.results-info p {
+    color: var(--calc-text-muted);
+}
+
+.tours-grid-calc {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+/* Footer / Actions */
+.calculator-actions {
+    margin-top: 40px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+}
+
+.btn-calc {
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    font-size: 16px;
+}
+
+.btn-calc-back {
+    background: var(--calc-bg);
+    color: var(--calc-text);
+}
+
+.btn-calc-back:hover {
+    background: var(--calc-border);
+}
+
+.btn-calc-next {
+    background: linear-gradient(135deg, var(--calc-primary) 0%, var(--calc-secondary) 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(10, 77, 104, 0.3);
+}
+
+.btn-calc-next:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(10, 77, 104, 0.4);
+}
+
+.btn-calc-next:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-calc-reset {
+    background: var(--calc-border);
+    color: var(--calc-text);
+}
+
+/* Loading State */
+.calc-loader {
+    text-align: center;
+    padding: 40px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(10, 77, 104, 0.1);
+    border-top-color: var(--calc-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calculator-panel {
+        padding: 20px;
+        border-radius: 0;
+    }
+
+    .info-row {
+        gap: 20px;
+    }
+
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .calculator-actions {
+        flex-direction: column-reverse;
+    }
+
+    .btn-calc {
+        width: 100%;
+    }
+}

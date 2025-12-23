@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Detail | KETMON</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-navigation.css">
+    <link rel="stylesheet" href="toast-notifications.css">
+    <link rel="stylesheet" href="tour-detail.css">
+    <link rel="stylesheet" href="components/skeletons.css">
+</head>
+
+<body class="tour-detail-page">
+    <!-- Header (Reused from index.html) -->
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">KETMON</a>
+            </div>
+            <ul class="desktop-nav">
+                <li><a href="index.html#destinations">Destinations</a></li>
+                <li><a href="index.html#categories">Categories</a></li>
+                <li><a href="index.html#about">About</a></li>
+                <li><a href="index.html#contact">Contact</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="nav-login-btn btn-primary" data-text="nav_login">Kirish</button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="tour-detail-container" id="tour-detail-content">
+        <!-- Skeleton Loader -->
+        <div class="skeleton-detail">
+            <div class="skeleton-hero"></div>
+            <div class="skeleton-body">
+                <div class="skeleton-main"></div>
+                <div class="skeleton-side"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Interactive Scripts -->
+    <script src="api.js" defer></script>
+    <script src="utilities.js" defer></script>
+    <script src="tour-detail.js" defer></script>
+</body>
+
+</html>

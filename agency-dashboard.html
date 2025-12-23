@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="uz">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agentlik Dashbordi | KETMON</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="premium-navigation.css">
+    <link rel="stylesheet" href="toast-notifications.css">
+    <link rel="stylesheet" href="agency-dashboard.css">
+</head>
+
+<body class="agency-page">
+    <header class="main-header scrolled">
+        <nav class="nav-container">
+            <div class="nav-logo"><a href="index.html">KETMON</a></div>
+            <div class="nav-actions">
+                <span class="agency-badge">Agency Partner</span>
+                <button class="btn secondary" onclick="window.ketmonApi.auth.logout()">Chiqish</button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-user">
+                <div class="sidebar-avatar" id="agency-initials">A</div>
+                <div class="sidebar-info">
+                    <h4 id="agency-name">Agentlik</h4>
+                    <p>Operator</p>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="sidebar-link active" data-tab="overview">📈 Umumiy holat</a>
+                <a href="#" class="sidebar-link" data-tab="tours">✈️ Mening sayohatlarim</a>
+                <a href="#" class="sidebar-link" data-tab="bookings">📋 Mijozlar bronlari</a>
+                <a href="#" class="sidebar-link" data-tab="messages">💬 Xabarlar</a>
+                <a href="#" class="sidebar-link" data-tab="settings">⚙️ Sozlamalar</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="dashboard-content">
+            <!-- Overview Tab -->
+            <section id="tab-overview" class="dashboard-tab active">
+                <div class="content-header">
+                    <h1 class="welcome-title">Xush kelibsiz, <span id="welcome-name">...</span></h1>
+                    <p class="welcome-subtitle">Bugun sizning agentligingizda nima gaplar?</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-icon">💰</span>
+                        <div class="stat-data">
+                            <span class="stat-value" id="stat-revenue">$0</span>
+                            <span class="stat-label">Jami tushum</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">🌟</span>
+                        <div class="stat-data">
+                            <span class="stat-value" id="stat-tours">0</span>
+                            <span class="stat-label">Sayohatlar soni</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">📈</span>
+                        <div class="stat-data">
+                            <span class="stat-value" id="stat-bookings">0</span>
+                            <span class="stat-label">Jami bronlar</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-icon">⭐</span>
+                        <div class="stat-data">
+                            <span class="stat-value">4.8</span>
+                            <span class="stat-label">O'rtacha reyting</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-grid">
+                    <div class="recent-card">
+                        <h3 class="card-title">Oxirgi bronlar</h3>
+                        <div id="recent-bookings-list" class="mini-list">
+                            <p class="empty-msg">Hali bronlar yo'q</p>
+                        </div>
+                    </div>
+                    <div class="recent-card">
+                        <h3 class="card-title">Mashhur sayohatlar</h3>
+                        <div id="popular-tours-list" class="mini-list">
+                            <p class="empty-msg">Sayohatlar topilmadi</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tours Tab -->
+            <section id="tab-tours" class="dashboard-tab">
+                <div class="content-header flex-between">
+                    <div>
+                        <h1 class="welcome-title">Sayohatlaringiz</h1>
+                        <p class="welcome-subtitle">Barcha sayohat paketlarini shu yerdan boshqaring.</p>
+                    </div>
+                    <button class="btn-primary" onclick="openCreateTourModal()">+ Yangi sayohat</button>
+                </div>
+
+                <div id="tours-list-container" class="tours-management-grid">
+                    <!-- Tours will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Bookings Tab -->
+            <section id="tab-bookings" class="dashboard-tab">
+                <div class="content-header">
+                    <h1 class="welcome-title">Mijozlar bronlari</h1>
+                    <p class="welcome-subtitle">Sayohatlaringizga qilingan barcha bronlarni ko'ring.</p>
+                </div>
+
+                <div class="bookings-table-wrapper">
+                    <table class="dashboard-table">
+                        <thead>
+                            <tr>
+                                <th>Mijoz</th>
+                                <th>Sayohat</th>
+                                <th>Sana</th>
+                                <th>Kishilar</th>
+                                <th>Jami</th>
+                                <th>Status</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="agency-bookings-table">
+                            <!-- Bookings will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Messages Tab -->
+            <section id="tab-messages" class="dashboard-tab">
+                <div class="content-header">
+                    <h1 class="welcome-title">Xabarlar</h1>
+                    <p class="welcome-subtitle">Mijozlar bilan to'g'ridan-to'g'ri bog'lanish.</p>
+                </div>
+
+                <div class="messaging-container">
+                    <div class="conversations-list" id="conversations-list">
+                        <!-- Conversations will be loaded here -->
+                        <div class="empty-state" style="padding: 20px; text-align: center;">Xabarlar yuklanmoqda...
+                        </div>
+                    </div>
+                    <div class="chat-window">
+                        <div id="chat-header" class="chat-header" style="display: none;">
+                            <div class="chat-partner-avatar" id="active-chat-avatar">U</div>
+                            <div class="partner-info">
+                                <div class="partner-name" id="active-chat-name">Tanlanmagan</div>
+                                <div id="active-chat-status" style="font-size: 11px; color: var(--success-color);">
+                                    Onlayn</div>
+                            </div>
+                        </div>
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="empty-state"
+                                style="text-align: center; margin-top: 100px; color: var(--text-secondary);">
+                                💬 Suhbatni boshlash uchun chap tarafdan mijozni tanlang
+                            </div>
+                        </div>
+                        <div class="chat-input-area" id="chat-input-area" style="display: none;">
+                            <input type="text" id="message-input" placeholder="Xabarni yozing..."
+                                onkeypress="if(event.key === 'Enter') handleSendMessage()">
+                            <button class="btn-primary" onclick="handleSendMessage()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="tour-modal" class="custom-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Yangi sayohat qo'shish</h2>
+            <form id="tour-form" class="dashboard-form" onsubmit="handleTourSubmit(event)">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Sayohat nomi (UZ)</label>
+                        <input type="text" id="t-title-uz" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sayohat nomi (EN)</label>
+                        <input type="text" id="t-title-en" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Shahar</label>
+                        <input type="text" id="t-city" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Davlat</label>
+                        <input type="text" id="t-country" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kunlar soni</label>
+                        <input type="number" id="t-days" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Narx kishi boshiga ($)</label>
+                        <input type="number" id="t-price" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Kategoriya</label>
+                        <select id="t-category" required>
+                            <option value="Soash">Sohil</option>
+                            <option value="Tog'lar">Tog'lar</option>
+                            <option value="Sarguzasht">Sarguzasht</option>
+                            <option value="Madaniy">Madaniy</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Tavsif (UZ)</label>
+                        <textarea id="t-desc-uz" rows="4"></textarea>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal()">Bekor qilish</button>
+                    <button type="submit" class="btn-primary" id="btn-save-tour">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+    <script src="utilities.js"></script>
+    <script src="agency-dashboard.js"></script>
+</body>
+
+</html>
