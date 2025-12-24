@@ -1,0 +1,193 @@
+<!-- HORIZONTAL SCROLLING TOURS - CATEGORIZED -->
+
+<!-- Popular Category -->
+<section class="tour-category-section">
+    <div class="category-header">
+        <h2 class="category-title">🔥 Popular</h2>
+        <div class="category-nav">
+            <button class="category-nav-btn" onclick="scrollCategory('popular', 'left')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6" />
+                </svg>
+            </button>
+            <button class="category-nav-btn" onclick="scrollCategory('popular', 'right')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <div class="horizontal-scroll-wrapper">
+        <div class="horizontal-scroll-track" id="popular-track">
+            <!-- Card 1 -->
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400" alt="Dubai">
+                    <span class="tour-badge">Hot Deal</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Dubai, UAE</h3>
+                    <p class="tour-card-description">Experience luxury and adventure in the city of gold</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$1,200</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Dubai, UAE', '$1,200');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Dubai, UAE', '$1,200');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400" alt="Paris">
+                    <span class="tour-badge">Popular</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Paris, France</h3>
+                    <p class="tour-card-description">City of love and romance with iconic landmarks</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$1,500</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Paris, France', '$1,500');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Paris, France', '$1,500');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400" alt="Istanbul">
+                    <span class="tour-badge">Trending</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Istanbul, Turkey</h3>
+                    <p class="tour-card-description">Where East meets West in perfect harmony</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$800</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Istanbul, Turkey', '$800');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Istanbul, Turkey', '$800');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate cards for infinite scroll -->
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400" alt="Dubai">
+                    <span class="tour-badge">Hot Deal</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Dubai, UAE</h3>
+                    <p class="tour-card-description">Experience luxury and adventure in the city of gold</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$1,200</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Dubai, UAE', '$1,200');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Dubai, UAE', '$1,200');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400" alt="Paris">
+                    <span class="tour-badge">Popular</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Paris, France</h3>
+                    <p class="tour-card-description">City of love and romance with iconic landmarks</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$1,500</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Paris, France', '$1,500');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Paris, France', '$1,500');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=400" alt="Istanbul">
+                    <span class="tour-badge">Trending</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Istanbul, Turkey</h3>
+                    <p class="tour-card-description">Where East meets West in perfect harmony</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$800</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Istanbul, Turkey', '$800');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Istanbul, Turkey', '$800');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Affordable Category -->
+<section class="tour-category-section">
+    <div class="category-header">
+        <h2 class="category-title">💰 Affordable</h2>
+    </div>
+    <div class="horizontal-scroll-wrapper">
+        <div class="horizontal-scroll-track">
+            <div class="tour-card-horizontal">
+                <div class="tour-card-image">
+                    <img src="https://images.unsplash.com/photo-1527838832700-5059252407fa?w=400" alt="Baku">
+                    <span class="tour-badge">Budget</span>
+                </div>
+                <div class="tour-card-content">
+                    <h3 class="tour-card-title">Baku Weekend, Azerbaijan</h3>
+                    <p class="tour-card-description">Affordable getaway with stunning views</p>
+                    <div class="tour-card-footer">
+                        <span class="tour-price">$690</span>
+                        <div class="tour-card-actions">
+                            <a href="#" class="tour-action-btn tour-btn-consult"
+                                onclick="event.preventDefault(); openChatbot('Baku, Azerbaijan', '$690');">Ask</a>
+                            <a href="#" class="tour-action-btn tour-btn-book"
+                                onclick="event.preventDefault(); openPaymentModal('Baku, Azerbaijan', '$690');">Book</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Add more affordable cards and duplicates -->
+        </div>
+    </div>
+</section>
+
+<!-- Add similar sections for: Exotic, Nature, Beach, Family, Honeymoon, Umrah -->
+
+<script>
+    // Simple category scroll function
+    function scrollCategory(category, direction) {
+        const track = document.getElementById(category + '-track');
+        const scrollAmount = 340;
+        if (direction === 'left') {
+            track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        } else {
+            track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+    }
+</script>
